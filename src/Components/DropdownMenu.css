@@ -1,0 +1,9 @@
+.dropdown-toggle {
+  color: #007bff;
+  font-weight: bold;
+}
+
+.dropdown-menu {
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}

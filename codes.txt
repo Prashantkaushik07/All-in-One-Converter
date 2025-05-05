@@ -1,0 +1,990 @@
+import React, { useState } from 'react';
+import './CompressJPEG.css';
+
+const CompressJPEG = () => {
+  const [file, setFile] = useState(null);
+  const [compressedFile, setCompressedFile] = useState(null);
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    setFile(file);
+  };
+
+  const handleCompress = () => {
+    if (file) {
+      // Simulate JPEG compression (placeholder logic)
+      setCompressedFile(file);
+      alert('JPEG image compressed!');
+    } else {
+      alert('Please upload a JPEG image first.');
+    }
+  };
+
+  return (
+    <div className="compress-container">
+      <h2>Compress JPEG</h2>
+      <input type="file" onChange={handleFileChange} accept="image/jpeg" />
+      {file && <p>{file.name}</p>}
+      <button onClick={handleCompress} className="compress-btn">Compress</button>
+      {compressedFile && <p>Compressed File: {compressedFile.name}</p>}
+    </div>
+  );
+};
+
+export default CompressJPEG;
+
+
+//App.js file date 10-12-2024 time 1:15pm// 223 line end code. 
+// import React from "react";
+// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+// import AppNavbar from "./Components/Navbar";
+
+// // PDF Tools Components
+// import CompressPDF from "./Pages/CompressPDF";
+// import MergePDF from "./Pages/MergePDF";
+// import SplitPDF from "./Pages/SplitPDF";
+// import ImageToPDF from "./Pages/ImageToPDF";
+// import ResizeImage from "./Pages/ResizeImage";
+
+// // Image Tools Components
+// import CompressImage from './Components/CompressImage';
+// import CompressJPG from './Components/CompressJPG';
+// import CompressPNG from './Components/CompressPNG';
+// import CompressJPEG from './Components/CompressJPEG';
+// import CompressWEBP from './Components/CompressWEBP';
+// import CompressHEIC from './Components/CompressHEIC';
+// import CompressBMP from './Components/CompressBMP';
+
+// function App() {
+//   return (
+//     <Router>
+//       <div className="App">
+//         <AppNavbar />
+//         <Routes>
+//           {/* PDF Tools */}
+//           <Route path="/compress-pdf" element={<CompressPDF />} />
+//           <Route path="/merge-pdf" element={<MergePDF />} />
+//           <Route path="/split-pdf" element={<SplitPDF />} />
+//           <Route path="/image-to-pdf" element={<ImageToPDF />} />
+//           <Route path="/resize-image" element={<ResizeImage />} />
+
+//           {/* Image Tools */}
+//           <Route path="/compress-image" element={<CompressImage />} />
+//           <Route path="/compress-jpg" element={<CompressJPG />} />
+//           <Route path="/compress-png" element={<CompressPNG />} />
+//           <Route path="/compress-jpeg" element={<CompressJPEG />} />
+//           <Route path="/compress-webp" element={<CompressWEBP />} />
+//           <Route path="/compress-heic" element={<CompressHEIC />} />
+//           <Route path="/compress-bmp" element={<CompressBMP />} />
+//         </Routes>
+//       </div>
+//     </Router>
+//   );
+// }
+
+// export default App;
+
+
+
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import AppNavbar from "./Components/Navbar";
+
+// PDF Tools Components
+import CompressPDF from "./Pages/CompressPDF";
+import MergePDF from "./Pages/MergePDF";
+import SplitPDF from "./Pages/SplitPDF";
+import ImageToPDF from "./Pages/ImageToPDF";
+import ResizeImage from "./Pages/ResizeImage";
+import ProtectPDF from "./Pages/ProtectPDF";
+
+// Image Tools Components
+import CompressImage from "./Components/CompressImage";
+import CompressJPG from "./Components/CompressJPG";
+import CompressPNG from "./Components/CompressPNG";
+import CompressJPEG from "./Components/CompressJPEG";
+import CompressWEBP from "./Components/CompressWEBP";
+import CompressHEIC from "./Components/CompressHEIC";
+import CompressBMP from "./Components/CompressBMP";
+
+function App() {
+  return (
+    <Router>
+      <div className="App">
+        <AppNavbar />
+        <Routes>
+          {/* PDF Tools */}
+          <Route path="/compress-pdf" element={<CompressPDF />} />
+          <Route path="/merge-pdf" element={<MergePDF />} />
+          <Route path="/split-pdf" element={<SplitPDF />} />
+          <Route path="/image-to-pdf" element={<ImageToPDF />} />
+          <Route path="/resize-image" element={<ResizeImage />} />
+          <Route path="/protect-pdf" element={<ProtectPDF />} />
+
+          {/* Image Tools */}
+          <Route path="/compress-image" element={<CompressImage />} />
+          <Route path="/compress-jpg" element={<CompressJPG />} />
+          <Route path="/compress-png" element={<CompressPNG />} />
+          <Route path="/compress-jpeg" element={<CompressJPEG />} />
+          <Route path="/compress-webp" element={<CompressWEBP />} />
+          <Route path="/compress-heic" element={<CompressHEIC />} />
+          <Route path="/compress-bmp" element={<CompressBMP />} />
+        </Routes>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
+
+// import React, { useState } from "react";
+// import { PDFDocument } from "pdf-lib";
+// import Dropzone from "react-dropzone";
+
+// const CompressPDF = () => {
+//   const [file, setFile] = useState(null);
+//   const [compressedFile, setCompressedFile] = useState(null);
+
+//   const handleDrop = async (acceptedFiles) => {
+//     const file = acceptedFiles[0];
+//     const fileReader = new FileReader();
+
+//     fileReader.onload = async (e) => {
+//       const pdfDoc = await PDFDocument.load(e.target.result);
+//       const pdfBytes = await pdfDoc.save({ useObjectStreams: false });
+//       setCompressedFile(new Blob([pdfBytes], { type: "application/pdf" }));
+//     };
+
+//     fileReader.readAsArrayBuffer(file);
+//     setFile(file);
+//   };
+
+//   const downloadCompressedFile = () => {
+//     if (compressedFile) {
+//       const link = document.createElement("a");
+//       link.href = URL.createObjectURL(compressedFile);
+//       link.download = "compressed.pdf";
+//       link.click();
+//     }
+//   };
+
+//   return (
+//     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+//       {/* Outer Card Container */}
+//       <div className="bg-white border border-gray-300 shadow-lg rounded-md w-96 p-6">
+//         {/* Title */}
+//         <h2 className="text-lg font-semibold text-gray-700 text-center mb-4">
+//           Compress PDF
+//         </h2>
+
+//         {/* Dropzone */}
+//         <Dropzone onDrop={handleDrop} accept={{ "application/pdf": [".pdf"] }}>
+//           {({ getRootProps, getInputProps }) => (
+//             <div
+//               {...getRootProps()}
+//               className="border-2 border-dashed border-gray-300 rounded-md h-36 flex flex-col items-center justify-center text-center text-gray-600 cursor-pointer"
+//             >
+//               <input {...getInputProps()} />
+//               <p className="text-sm">Drop PDF file here or</p>
+//               <button className="mt-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded">
+//                 Select PDF
+//               </button>
+//             </div>
+//           )}
+//         </Dropzone>
+
+//         {/* File Uploaded Info */}
+//         {file && (
+//           <div className="mt-4 text-center">
+//             <p className="text-sm text-green-600">File uploaded: {file.name}</p>
+//           </div>
+//         )}
+
+//         {/* Download Button */}
+//         {compressedFile && (
+//           <div className="mt-4 text-center">
+//             <button
+//               onClick={downloadCompressedFile}
+//               className="px-4 py-2 bg-green-500 text-white text-sm font-medium rounded"
+//             >
+//               Download Compressed PDF
+//             </button>
+//           </div>
+//         )}
+//       </div>
+
+//       {/* Security Text */}
+//       <p className="mt-4 text-sm text-gray-500">🔒 Your files are secure.</p>
+//     </div>
+//   );
+// };
+
+// export default CompressPDF;
+//end here//
+
+
+//pdf tools code//
+import React from "react";
+import ToolCard from "./ToolCard";
+import "./PDFTools.css";
+
+const PDFTools = () => {
+  const tools = [
+    { name: "Compress PDF", icon: "compress.png" },
+    { name: "Merge PDF", icon: "merge.png" },
+    { name: "Split PDF", icon: "split.png" },
+    { name: "Unlock PDF", icon: "unlock.png" },
+    { name: "Protect PDF", icon: "protect.png" },
+  ];
+
+  return (
+    <div className="tools-grid">
+      {tools.map((tool, index) => (
+        <ToolCard key={index} name={tool.name} icon={tool.icon} />
+      ))}
+    </div>
+  );
+};
+
+export default PDFTools;
+
+//pdf tools css//
+/* .protect-pdf-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background-color: #f9fafb;
+    min-height: 100vh;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  .password-inputs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .input-field {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    width: 200px;
+  }
+  
+  .dropzone {
+    width: 100%;
+    max-width: 400px;
+    height: 120px;
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1rem 0;
+    background-color: #ffffff;
+  }
+  
+  .file-placeholder {
+    text-align: center;
+    color: #6b7280;
+  }
+  
+  .file-preview {
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  
+  .remove-file-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .select-pdf-btn {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    color: #ffffff;
+    background-color: #2563eb;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .protect-pdf-btn {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    color: #ffffff;
+    background-color: #10b981;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .protect-pdf-btn:disabled {
+    background-color: #6b7280;
+    cursor: not-allowed;
+  }
+   */
+   .protect-pdf-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background-color: #f9fafb;
+    min-height: 100vh;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  .password-inputs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .input-field {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    width: 200px;
+  }
+  
+  .dropzone {
+    width: 100%;
+    max-width: 400px;
+    height: 120px;
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1rem 0;
+    background-color: #ffffff;
+  }
+  
+  .file-placeholder {
+    text-align: center;
+    color: #6b7280;
+  }
+  
+  .file-preview {
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  
+  .file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .remove-file-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .select-pdf-btn {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    color: #ffffff;
+    background-color: #2563eb;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .protect-pdf-btn {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    color: #ffffff;
+    background-color: #10b981;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .protect-pdf-btn:disabled {
+    background-color: #6b7280;
+    cursor: not-allowed;
+  }
+  
+
+  //changes in homepage code//
+  import React from "react";
+import "./HomeTop.css";
+import homeTopImage from "./home_top.svg"; // Ensure this path is correct
+
+const HomeTop = () => {
+  return (
+    <div className="home__top__container">
+      {/* Top Section */}
+      <div className="home__top__content">
+        {/* Text Section */}
+        <div className="home__top__text">
+          <div className="home__top__header">
+            <h1>Secure, Smart, and Easy to Use — All in One</h1>
+          </div>
+          <div className="home__top__description">
+            <p>
+              Get more done with All in One. Maximize productivity with features
+              like compressing, converting, editing, and more — all in one place.
+            </p>
+          </div>
+        </div>
+
+        {/* Image Section */}
+        <div className="home__top__image">
+          <img
+            src={homeTopImage}
+            alt="All in One Tool"
+            draggable="false"
+            className="home__top__image-element"
+          />
+        </div>
+      </div>
+
+      {/* Feature Cards Section */}
+      <div className="home__top__features row">
+        <div className="htmt__main">
+          <div className="htmt__hr">
+            <h2>The fastest tool for file processing</h2>
+            <p className="subtitle">
+              Whether you’re looking to convert, compress, or edit files, you’ll find the perfect solution on 11zon.
+            </p>
+          </div>
+          <div className="htmt__cr fd__r">
+            <div className="htmt__nt">
+              <FeatureCard
+                icon={
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="#2c8cf4" height="24" viewBox="0 -960 960 960" width="24">
+                    <path d="M418-340q24 24 62 23.5t56-27.5l224-336-336 224q-27 18-28.5 55t22.5 61Zm62-460q59 0 113.5 16.5T696-734l-76 48q-33-17-68.5-25.5T480-720q-133 0-226.5 93.5T160-400q0 42 11.5 83t32.5 77h552q23-38 33.5-79t10.5-85q0-36-8.5-70T766-540l48-76q30 47 47.5 100T880-406q1 57-13 109t-41 99q-11 18-30 28t-40 10H204q-21 0-40-10t-30-28q-26-45-40-95.5T80-400q0-83 31.5-155.5t86-127Q252-737 325-768.5T480-800Zm7 313Z" />
+                  </svg>
+                }
+                title="Lightning Fast File Processing"
+                description="Experience a new level of speed and efficiency in processing your files."
+              />
+              <FeatureCard
+                icon={
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="#2c8cf4" height="24" viewBox="0 -960 960 960" width="24">
+                    <path d="M480-80q-139-35-229.5-159.5T160-516v-244l320-120 320 120v244q0 152-90.5 276.5T480-80Zm0-84q97-30 162-118.5T718-480H480v-315l-240 90v207q0 7 2 18h238v316Z" />
+                  </svg>
+                }
+                title="Secure File Handling and Data Privacy"
+                description="Protect your files and ensure data privacy with our secure file handling and data privacy features."
+              />
+              <FeatureCard
+                icon={
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="#2c8cf4" height="24" viewBox="0 -960 960 960" width="24">
+                    <path d="m438-240 226-226-58-58-169 169-84-84-57 57 142 142ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z" />
+                  </svg>
+                }
+                title="Multi-Format File Support"
+                description="Support for a wide range of file formats for seamless file processing."
+              />
+              <FeatureCard
+                icon={
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="#2c8cf4" height="24" viewBox="0 -960 960 960" width="24">
+                    <path d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z" />
+                  </svg>
+                }
+                title="Batch Processing"
+                description="Boost your productivity with seamless simultaneous processing of multiple files."
+              />
+            </div>
+            <div className="htmt__mg">
+              <div className="htmt__ig">
+                <img
+                  alt=""
+                  src="https://cdn.11zonapis.com/img/trust/template.png"
+                  className="about_apart_img"
+                  title="11zon"
+                  draggable="false"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const FeatureCard = ({ icon, title, description }) => (
+  <div className="htmt__ct htmt__ct__pa">
+    <div className="htmt__ct__m">
+      <div className="htmt__ct__cr">
+        <div className="htmt__ct__cr__icon">{icon}</div>
+        <div className="htmt__ct__ir">
+          <h3>{title}</h3>
+          <p>{description}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+export default HomeTop;
+// end here//
+
+//Homepage css start here//
+.home__top__cr {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    background-color: #f9fafc;
+  }
+  
+  .home__top_cr {
+    display: flex;
+    max-width: 1200px;
+    width: 100%;
+    align-items: center;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+  
+  .home__top__nt {
+    flex: 1;
+    min-width: 300px;
+  }
+  
+  .home__top__ct {
+    max-width: 500px;
+  }
+  
+  .home__top__ct h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .home__top__ct p {
+    font-size: 1.125rem;
+    color: #555;
+    line-height: 1.6;
+  }
+  
+  .home__top__mg {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 300px;
+  }
+  
+  .home__top__ig img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+  
+  .home__top__container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-color: #f9f9f9; /* Example background */
+  }
+  
+  .home__top__content {
+    display: flex;
+    flex-wrap: wrap; /* Ensure responsiveness */
+    max-width: 1200px;
+    margin: auto;
+  }
+  
+  .home__top__text {
+    flex: 1;
+    padding: 20px;
+  }
+  
+  .home__top__header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+  }
+  
+  .home__top__description p {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #555;
+  }
+  
+  .home__top__image {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .home__top__image-element {
+    max-width: 100%;
+    height: auto;
+  }
+
+
+
+  .htmt__cr {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+  }
+  //End here//
+
+
+
+  General Container
+.home__top__container {
+  margin: 2rem auto;
+  padding: 1rem;
+  max-width: 1200px;
+  font-family: Arial, sans-serif;
+}
+
+/* Top Section */
+.home__top__content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.home__top__text h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.home__top__text p {
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.home__top__image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+/* Feature Cards Section */
+.home__top__features {
+  text-align: center;
+}
+
+.home__top__features h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.home__top__features .subtitle {
+  font-size: 1rem;
+  color: #777;
+  margin-bottom: 2rem;
+}
+
+.features__list {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+/* Individual Feature Card */
+.feature__card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  max-width: 300px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.feature__icon {
+  font-size: 2.5rem;
+  background-color: #eaf4ff;
+  border-radius: 50%;
+  padding: 1rem;
+  color: #2c8cf4;
+}
+
+.feature__content h3 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0;
+  color: #333;
+}
+
+.feature__content p {
+  font-size: 0.9rem;
+  margin: 0;
+  color: #555;
+}
+
+
+//ImageToPDF css//
+/* .image-to-pdf-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  } */
+  
+  /* Upload Box (Dropzone) */
+  .upload-box {
+    width: 80%;
+    max-width: 400px;
+    height: 200px;
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    background-color: #fff;
+    position: relative;
+    cursor: pointer;
+    margin-bottom: 20px;
+  
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .upload-box:hover {
+    border-color: #007bff;
+  }
+  
+  .upload-box p {
+    font-size: 16px;
+    color: #555;
+    margin: 0 0 10px 0;
+  }
+  
+  /* Select Image Button */
+  .select-image-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 30px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    text-decoration: none;
+  }
+  
+  .select-image-button:hover {
+    background-color: #0069d9;
+  }
+  
+  /* Secure Text */
+  .secure-text {
+    font-size: 14px;
+    color: #888;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .lock-icon {
+    margin-right: 5px;
+  }
+  
+  /* Drag-over state */
+  .upload-box.drag-over {
+    border-color: #007bff;
+  }
+  
+  /* Preview Section */
+  .preview-section {
+    width: 100%;
+    margin-top: 20px;
+    text-align: left;
+  }
+  
+  .preview-section h4 {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .preview-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-start;
+  }
+  
+  .preview-item {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    width: 150px;
+    text-align: center;
+    background: #fff;
+  }
+  
+  .preview-image {
+    max-width: 100px;
+    max-height: 100px;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+  }
+  
+  .preview-item p {
+    font-size: 14px;
+    color: #333;
+    margin: 0;
+  }
+  
+  /* Convert Button */
+  .convert-button {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  
+  .convert-button:hover {
+    background-color: #218838;
+  }
+  new updated css code of navbar //
+  /* Navbar.css */
+.navbar {
+  font-family: Arial, sans-serif;
+}
+
+.navbar-brand {
+  font-weight: bold;
+}
+
+/* Theme Toggle Button */
+.z__btn_in {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.z__theme_btn svg {
+  fill: #000;
+  width: 24px;
+  height: 24px;
+}
+
+.z__theme_btn:hover {
+  opacity: 0.8;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip--bottom::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #000;
+  color: #fff;
+  padding: 5px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s;
+}
+
+.tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Help Center Link */
+.z__help_cr a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  text-decoration: none;
+}
+
+.z__help_cr a:hover {
+  color: #007bff;
+}
+
+/* Login and Signup Buttons */
+.z__login_btn,
+.z__signup_btn {
+  display: inline-block;
+  padding: 8px 15px;
+  margin: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff;
+  background-color: #007bff;
+  text-decoration: none;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.z__signup_btn {
+  background-color: #28a745;
+}
+
+.z__login_btn:hover,
+.z__signup_btn:hover {
+  opacity: 0.9;
+}

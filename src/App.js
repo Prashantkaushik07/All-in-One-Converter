@@ -5,28 +5,28 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AppNavbar from "./Components/Navbar";
 import HomeTop from "./Components/HomeTop";
 import Footer from "./Components/Footer";
-import Features from "./Components/Features";
-import UploadPDF from "./Components/UploadPDF";
-import ConvertPDF from "./Components/ConvertPDF";
-import ImageToPDF from "./Components/ImageToPDF";
-import ToolGrid from "./Components/ToolGrid"; // Import ToolGrid component
-import WhySection from "./Components/WhySection";
-import JoinUsSection from "./Components/JoinUsSection";
-import InfoSection from "./Components/Infosection";
+import Features from "./Components/Features/Features"; // Updated path for Features
+import UploadPDF from "./Components/PDFTools/UploadPDF"; // Updated path for UploadPDF
+import ConvertPDF from "./Components/PDFTools/ConvertPDF"; // Updated path for ConvertPDF
+import ImageToPDF from "./Components/PDFTools/ImageToPDF"; // Updated path for ImageToPDF
+import ToolGrid from "./Components/Home/ToolGrid"; // Updated path for ToolGrid
+import WhySection from "./Components/Home/WhySection"; // Updated path for WhySection
+import JoinUsSection from "./Components/Home/JoinUsSection"; // Updated path for JoinUsSection
+import InfoSection from "./Components/Home/InfoSection"; // Updated path for InfoSection
 
 // Lazy load other components/pages for improved performance
-const CompressPDF = React.lazy(() => import("./Pages/CompressPDF"));
-const MergePDF = React.lazy(() => import("./Pages/MergePDF"));
-const SplitPDF = React.lazy(() => import("./Pages/SplitPDF"));
-const ResizeImage = React.lazy(() => import("./Pages/ResizeImage"));
-const ProtectPDF = React.lazy(() => import("./Pages/ProtectPDF"));
-const CompressImage = React.lazy(() => import("./Components/CompressImage"));
-const CompressJPG = React.lazy(() => import("./Components/CompressJPG"));
-const CompressPNG = React.lazy(() => import("./Components/CompressPNG"));
-const CompressJPEG = React.lazy(() => import("./Components/CompressJPEG"));
-const CompressWEBP = React.lazy(() => import("./Components/CompressWEBP"));
-const CompressHEIC = React.lazy(() => import("./Components/CompressHEIC"));
-const CompressBMP = React.lazy(() => import("./Components/CompressBMP"));
+const CompressPDF = React.lazy(() => import("./Components/PDFTools/CompressPDF")); // Updated path
+const MergePDF = React.lazy(() => import("./Components/PDFTools/MergePDF")); // Updated path
+const SplitPDF = React.lazy(() => import("./Components/PDFTools/SplitPDF")); // Updated path
+const ResizeImage = React.lazy(() => import("./Components/ImageTools/ResizeImage")); // Updated path
+const ProtectPDF = React.lazy(() => import("./Components/PDFTools/ProtectPDF")); // Updated path
+const CompressImage = React.lazy(() => import("./Components/ImageTools/CompressImage")); // Updated path
+const CompressJPG = React.lazy(() => import("./Components/ImageTools/CompressJPG")); // Updated path
+const CompressPNG = React.lazy(() => import("./Components/ImageTools/CompressPNG")); // Updated path
+const CompressJPEG = React.lazy(() => import("./Components/ImageTools/CompressJPEG")); // Updated path
+const CompressWEBP = React.lazy(() => import("./Components/ImageTools/CompressWEBP")); // Updated path
+const CompressHEIC = React.lazy(() => import("./Components/ImageTools/CompressHEIC")); // Updated path
+const CompressBMP = React.lazy(() => import("./Components/ImageTools/CompressBMP")); // Updated path
 
 function App() {
   return (
@@ -42,7 +42,7 @@ function App() {
                 <>
                   <HomeTop />
                   <Footer />
-                  <ToolGrid /> {/* Add ToolGrid component here */}
+                  <ToolGrid />
                   <Features />
                   <WhySection />
                   <JoinUsSection />

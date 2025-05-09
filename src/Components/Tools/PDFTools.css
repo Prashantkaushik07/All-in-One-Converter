@@ -1,0 +1,70 @@
+.pdf-tools-dropdown {
+  position: relative;
+}
+
+.dropdown-toggle {
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  width: 600px;
+}
+
+.dropdown-categories {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.dropdown-category {
+  flex: 1 1 30%;
+  margin: 10px;
+}
+
+.category-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.category-tools {
+  list-style: none;
+  padding: 0;
+}
+
+.tool-item {
+  margin: 5px 0;
+}
+
+.tool-item a {
+  text-decoration: none;
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+
+.tool-item a:hover {
+  color: #007bff;
+}
+
+.tool-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}

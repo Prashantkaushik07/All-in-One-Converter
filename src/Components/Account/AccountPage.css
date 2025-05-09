@@ -1,0 +1,70 @@
+.account-page {
+    padding: 30px;
+    color: #fff;
+    background-color: #1e1e1e;
+    font-family: "Segoe UI", sans-serif;
+  }
+  
+  .verify-banner {
+    background-color: #2a2a2a;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    color: #ccc;
+  }
+  
+  .verify-banner a {
+    color: #59aaff;
+    text-decoration: underline;
+  }
+  
+  .card {
+    background-color: #121212;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    border: 1px solid #2e2e2e;
+  }
+  
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    color: #ccc;
+  }
+  
+  .profile-content {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+  }
+  
+  .avatar-circle {
+    background-color: #2a2a2a;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+  }
+  
+  .profile-info p {
+    margin: 5px 0;
+  }
+  
+  .card-body {
+    color: #ccc;
+  }
+  
+  .verify-link,
+  .delete-link {
+    display: inline-block;
+    margin-top: 10px;
+    color: #59aaff;
+    text-decoration: underline;
+    font-size: 0.9rem;
+  }
+  

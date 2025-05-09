@@ -1,0 +1,71 @@
+.verify-modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    width: 100vw;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+  
+  .verify-modal {
+    background: #1e1e1e;
+    padding: 2rem;
+    width: 360px;
+    border-radius: 10px;
+    color: white;
+    position: relative;
+    text-align: center;
+  }
+  
+  .verify-modal .close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: transparent;
+    border: none;
+    color: #999;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  
+  .verify-modal .icon {
+    font-size: 36px;
+    margin-bottom: 1rem;
+  }
+  
+  .verify-modal input {
+    width: 100%;
+    padding: 0.6rem;
+    margin: 0.5rem 0;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+  }
+  
+  .verify-btn {
+    background: #007bff;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 1rem;
+  }
+  
+  .resend-link {
+    background: none;
+    border: none;
+    color: #0af;
+    cursor: pointer;
+    margin-top: 0.5rem;
+  }
+  
+  .change-help a {
+    color: #0af;
+    font-size: 0.9rem;
+  }
+  

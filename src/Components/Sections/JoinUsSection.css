@@ -1,0 +1,84 @@
+.join-us-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(90deg, #001744, #0056b3, #00a3ff);
+  border-radius: 10px;
+  padding: 20px 40px;
+  color: white;
+  margin: 20px;
+}
+
+.join-us-content {
+  max-width: 40%;
+}
+
+.join-us-content h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.join-us-content p {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.join-us-button {
+  background-color: white;
+  color: #0056b3;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.join-us-button:hover {
+  background-color: #0056b3;
+  color: white;
+}
+
+.join-us-graphic {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.account-icon {
+  background: white;
+  border-radius: 10px;
+  padding: 10px 20px;
+  text-align: center;
+  font-size: 16px;
+  color: #0056b3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.icon-cloud,
+.icon-heart,
+.icon-security {
+  font-size: 24px;
+  color: white;
+  background: #0056b3;
+  border-radius: 50%;
+  padding: 10px;
+  position: absolute;
+}
+
+.icon-cloud {
+  top: -20px;
+  right: 50px;
+}
+
+.icon-heart {
+  bottom: 10px;
+  right: 80px;
+}
+
+.icon-security {
+  bottom: -10px;
+  right: -20px;
+}

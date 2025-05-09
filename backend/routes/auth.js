@@ -1,0 +1,209 @@
+// routes/auth.js (extended with Signup, Login, Forgot Password, Email Confirmation, and OTP functionality)
+const express = require("express");
+const router = express.Router();
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
+const User = require("../models/User");
+
+// In-memory OTP store (replace with Redis in production)
+const otpStore = {};
+
+// Email transporter config
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+// Generate random 6-digit OTP
+function generateOTP() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// Signup Route with DB save + Email confirmation
+router.post("/signup", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ error: "User already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ email, password: hashedPassword });
+    await newUser.save();
+
+    // Send confirmation email
+    await transporter.sendMail({
+      from: `"All-in-One Converter" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Welcome to All-in-One Converter",
+      html: `
+        <h3>Welcome!</h3>
+        <p>Your account has been created successfully.</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p>Start using our tools today!</p>
+      `
+    });
+
+    const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d"
+    });
+
+    res.status(200).json({ message: "Signup successful", token });
+  } catch (err) {
+    console.error("Signup error:", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Login Route
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ error: "Invalid credentials" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: "Invalid credentials" });
+    }
+
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.status(200).json({ message: "Login successful", token });
+  } catch (err) {
+    console.error("Login error:", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Forgot Password
+router.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: "Email is required" });
+
+  const user = await User.findOne({ email });
+  if (!user) return res.status(400).json({ error: "User not found" });
+
+  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "15m"
+  });
+
+  const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
+  const otp = generateOTP();
+  otpStore[email] = { otp, expires: Date.now() + 5 * 60 * 1000 };
+
+  try {
+    await transporter.sendMail({
+      from: `"All-in-One Converter" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Reset your password",
+      html: `
+        <h3>Password Reset Requested</h3>
+        <p>Your OTP is: <strong>${otp}</strong></p>
+        <p>Or click the link below to reset your password:</p>
+        <a href="${resetLink}" target="_blank">${resetLink}</a>
+        <p>This link and OTP will expire in 15 minutes.</p>
+      `
+    });
+
+    res.status(200).json({ message: "Reset link and OTP sent to email" });
+  } catch (err) {
+    console.error("Reset email error:", err);
+    res.status(500).json({ error: "Failed to send reset email" });
+  }
+});
+
+// Reset Password
+router.post("/reset-password", async (req, res) => {
+  const { email, newPassword } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+    user.password = hashed;
+    await user.save();
+
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (err) {
+    console.error("Reset error:", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Verify Email (extended)
+router.post("/verify-email", async (req, res) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
+    return res.status(400).json({ error: "Email and OTP are required" });
+  }
+
+  const record = otpStore[email];
+  if (!record) {
+    return res.status(400).json({ error: "No OTP found for this email" });
+  }
+
+  if (Date.now() > record.expires) {
+    delete otpStore[email];
+    return res.status(400).json({ error: "OTP has expired" });
+  }
+
+  if (record.otp !== otp) {
+    return res.status(400).json({ error: "Invalid OTP" });
+  }
+
+  const user = await User.findOne({ email });
+  if (user) {
+    user.verified = true;
+    await user.save();
+  }
+
+  delete otpStore[email];
+  return res.status(200).json({ message: "Email verified successfully" });
+});
+
+// Verify OTP
+router.post("/verify-otp", async (req, res) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
+    return res.status(400).json({ error: "Email and OTP are required" });
+  }
+
+  const record = otpStore[email];
+  if (!record) {
+    return res.status(400).json({ error: "No OTP found for this email" });
+  }
+
+  if (Date.now() > record.expires) {
+    delete otpStore[email];
+    return res.status(400).json({ error: "OTP has expired" });
+  }
+
+  if (record.otp !== otp) {
+    return res.status(400).json({ error: "Invalid OTP" });
+  }
+
+  delete otpStore[email];
+  return res.status(200).json({ message: "OTP verified successfully" });
+});
+
+module.exports = router;

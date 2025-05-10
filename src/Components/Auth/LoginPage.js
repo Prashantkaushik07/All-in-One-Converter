@@ -150,6 +150,11 @@ const LoginPage = () => {
     }
   };
 
+  if (newPassword !== confirmPassword) {
+    alert("Passwords do not match.");
+    return;
+  }
+  
   const handleNewPasswordSubmit = async (e) => {
     e.preventDefault();
     try {

@@ -117,8 +117,9 @@ router.post("/login", async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       token,
-      name: user.name || "",   // fallback in case not set
+      name: user.name || "",
       email: user.email,
+      profilePic: user.profilePic || "", // ✅ include profile pic
     });
   } catch (err) {
     console.error("Login error:", err.message);

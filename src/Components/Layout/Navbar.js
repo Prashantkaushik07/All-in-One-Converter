@@ -25,17 +25,17 @@ const ResponsiveNavbar = () => {
   };
 
   useEffect(() => {
-  const handleClickOutside = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-      setShowDropdown(false);
-    }
-  };
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
 
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, []);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <nav className="navbar">
@@ -62,12 +62,20 @@ const ResponsiveNavbar = () => {
         {isLoggedIn ? (
           <div className="profile-container" ref={dropdownRef}>
             <button className="profile-icon-btn" onClick={() => setShowDropdown(!showDropdown)}>
-              <img src="/user-icon.svg" alt="user" className="user-icon" />
+              <img
+                src={user.profilePic || "/user-icon.svg"}
+                alt="user"
+                className="user-icon"
+              />
             </button>
             {showDropdown && (
               <div className="profile-dropdown-box">
                 <div className="profile-info">
-                  <img src="/user-icon.svg" alt="User" className="profile-avatar" />
+                  <img
+                    src={user.profilePic || "/user-icon.svg"}
+                    alt="User"
+                    className="profile-avatar"
+                  />
                   <div className="user-details">
                     <p className="user-name">{user.name || "User"}</p>
                     <p className="user-email">{user.email || "email@example.com"}</p>

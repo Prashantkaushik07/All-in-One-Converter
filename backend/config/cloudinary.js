@@ -12,11 +12,7 @@ const storage = new CloudinaryStorage({
   params: {
     folder: "user_profiles",
     allowed_formats: ["jpg", "jpeg", "png"],
-    transformation: [{ width: 300, height: 300, crop: "limit" }],
   },
 });
 
-module.exports = {
-  cloudinary,
-  storage,
-};
+module.exports = { cloudinary, storage };

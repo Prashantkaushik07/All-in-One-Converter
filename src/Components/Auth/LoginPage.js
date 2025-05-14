@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import "./LoginPage.css";
+import { useAuth } from "../../utils/AuthContext"; // ✅ import auth context
+
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -26,6 +28,7 @@ const LoginPage = () => {
 
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -40,7 +43,7 @@ const LoginPage = () => {
   const handleLogout = () => {
     localStorage.clear();
     setIsLoggedIn(false);
-    navigate("/login");
+    navigate("/");
   };
 
   const showPopup = (message, type = "info") => {
@@ -72,6 +75,27 @@ const LoginPage = () => {
     }
   }, [showVerifyOtp]);
 
+  //   const handleLogin = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const res = await fetch("http://localhost:5000/api/auth/login", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ email, password }),
+  //     });
+  //     const data = await res.json();
+  //     if (res.ok) {
+  //       localStorage.setItem("token", data.token);
+  //       showPopup("Login successful", "success");
+  //       navigate("/dashboard");
+  //     } else {
+  //       showPopup(data.error || "Login failed", "error");
+  //     }
+  //   } catch (err) {
+  //     console.error("Login error:", err);
+  //     showPopup("An error occurred.", "error");
+  //   }
+  // };
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -82,7 +106,7 @@ const LoginPage = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        localStorage.setItem("token", data.token);
+        login(data.token, data.name, data.email); // ✅ this will update global context
         showPopup("Login successful", "success");
         navigate("/dashboard");
       } else {
@@ -154,7 +178,7 @@ const LoginPage = () => {
     alert("Passwords do not match.");
     return;
   }
-  
+
   const handleNewPasswordSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -203,8 +227,8 @@ const LoginPage = () => {
           </div>
         ) : (
           <div className="auth-buttons">
-            <Link to="/login" className="auth-link">Log in</Link>
-            <Link to="/signup" className="auth-link">Sign up</Link>
+            {/* <Link to="/login" className="auth-link">Log in</Link>
+            <Link to="/signup" className="auth-link">Sign up</Link> */}
           </div>
         )}
       </div>

@@ -1,198 +1,94 @@
-// Navbar.js
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
-import {
-  FaFilePdf,
-  FaImage,
-  FaFileWord,
-  FaFilePowerpoint,
-  FaFileExcel,
-  FaLock,
-  FaShieldAlt,
-  FaCompress,
-  FaCrop,
-  FaRegEdit,
-} from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../utils/AuthContext"; // ✅ now used
+import { useRef, useEffect } from "react";
 
-const Navbar = () => {
-  const [openDropdown, setOpenDropdown] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+
+const ResponsiveNavbar = () => {
+  const [theme, setTheme] = useState("light");
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const { isLoggedIn, user, logout } = useAuth(); // ✅ using context
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const checkLogin = () => setIsLoggedIn(!!localStorage.getItem("token"));
-    window.addEventListener("storage", checkLogin);
-    checkLogin();
-    return () => window.removeEventListener("storage", checkLogin);
-  }, []);
-
-  const handleDropdown = (menu) => {
-    setOpenDropdown(openDropdown === menu ? null : menu);
+  const toggleTheme = () => {
+    setTheme(prev => (prev === "light" ? "dark" : "light"));
+    document.body.className = theme;
   };
 
-  const handleNavigation = (path) => {
-    navigate(path);
-  };
+  const dropdownRef = useRef();
 
   const handleLogout = () => {
-    localStorage.clear();
-    caches.keys().then((names) => names.forEach((name) => caches.delete(name)));
-    setIsLoggedIn(false);
+    logout();
     navigate("/");
   };
 
+  useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setShowDropdown(false);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
+
   return (
-    <div className="navbar">
-      <div
-        className="navbar-brand"
-        onClick={() => handleNavigation("/")}
-        style={{ cursor: "pointer" }}
-      >
-        All in One
+    <nav className="navbar">
+      <div className="navbar-left">
+        <Link to="/" className="logo">
+          <strong>All</strong><span className="power">in</span><strong>One⏻</strong>
+        </Link>
+
+        <div className="dropdown">
+          <button className="dropbtn">PDF Tools ▾</button>
+        </div>
+        <div className="dropdown">
+          <button className="dropbtn">Image Tools ▾</button>
+        </div>
+        <div className="dropdown">
+          <button className="dropbtn">Converter Tools ▾</button>
+        </div>
       </div>
-      <ul className="menu">
-        <li
-          className="menu-item"
-          onMouseEnter={() => handleDropdown("pdfTools")}
-          onMouseLeave={() => handleDropdown(null)}
-        >
-          <button>PDF Tools ▾</button>
-          {openDropdown === "pdfTools" && (
-            <div className="dropdown-content">
-              <div className="column">
-                <h4>OPTIMIZE PDF</h4>
-                <p onClick={() => handleNavigation("/compress-pdf")}>
-                  <FaCompress /> Compress PDF
-                </p>
-              </div>
-              <div className="column">
-                <h4>MERGE & SPLIT</h4>
-                <p onClick={() => handleNavigation("/merge-pdf")}>
-                  <FaFilePdf /> Merge PDF
-                </p>
-                <p onClick={() => handleNavigation("/merge-pdf-image")}>
-                  <FaFilePdf /> Merge PDF and Image
-                </p>
-                <p onClick={() => handleNavigation("/split-pdf")}>
-                  <FaFilePdf /> Split PDF
-                </p>
-              </div>
-              <div className="column">
-                <h4>VIEW & EDIT</h4>
-                <p onClick={() => handleNavigation("/crop-pdf")}>
-                  <FaCrop /> Crop PDF Page
-                </p>
-                <p onClick={() => handleNavigation("/organize-pdf")}>
-                  <FaRegEdit /> Organize PDF
-                </p>
-                <p onClick={() => handleNavigation("/rotate-pdf")}>
-                  <FaRegEdit /> Rotate PDF
-                </p>
-                <p onClick={() => handleNavigation("/remove-pages")}>
-                  <FaRegEdit /> Remove PDF Pages
-                </p>
-              </div>
-              <div className="column">
-                <h4>CONVERT TO PDF</h4>
-                <p onClick={() => handleNavigation("/image-to-pdf")}>
-                  <FaImage /> Image to PDF
-                </p>
-                <p onClick={() => handleNavigation("/jpg-to-pdf")}>
-                  <FaImage /> JPG to PDF
-                </p>
-              </div>
-              <div className="column">
-                <h4>CONVERT FROM PDF</h4>
-                <p onClick={() => handleNavigation("/pdf-to-image")}>
-                  <FaImage /> PDF to Image
-                </p>
-                <p onClick={() => handleNavigation("/pdf-to-jpg")}>
-                  <FaImage /> PDF to JPG
-                </p>
-              </div>
-              <div className="column">
-                <h4>CONVERT TO PDF</h4>
-                <p onClick={() => handleNavigation("/word-to-pdf")}>
-                  <FaFileWord /> Word to PDF
-                </p>
-                <p onClick={() => handleNavigation("/powerpoint-to-pdf")}>
-                  <FaFilePowerpoint /> PowerPoint to PDF
-                </p>
-                <p onClick={() => handleNavigation("/excel-to-pdf")}>
-                  <FaFileExcel /> Excel to PDF
-                </p>
-              </div>
-              <div className="column">
-                <h4>CONVERT FROM PDF</h4>
-                <p onClick={() => handleNavigation("/pdf-to-word")}>
-                  <FaFileWord /> PDF to Word
-                </p>
-                <p onClick={() => handleNavigation("/pdf-to-powerpoint")}>
-                  <FaFilePowerpoint /> PDF to PowerPoint
-                </p>
-                <p onClick={() => handleNavigation("/pdf-to-excel")}>
-                  <FaFileExcel /> PDF to Excel
-                </p>
-              </div>
-              <div className="column">
-                <h4>PDF SECURITY</h4>
-                <p onClick={() => handleNavigation("/unlock-pdf")}>
-                  <FaLock /> Unlock PDF
-                </p>
-                <p onClick={() => handleNavigation("/protect-pdf")}>
-                  <FaShieldAlt /> Protect PDF
-                </p>
-              </div>
-            </div>
-          )}
-        </li>
-        <li
-          className="menu-item"
-          onMouseEnter={() => handleDropdown("imageTools")}
-          onMouseLeave={() => handleDropdown(null)}
-        >
-          <button>Image Tools ▾</button>
-          {openDropdown === "imageTools" && <div className="dropdown-content"></div>}
-        </li>
-        <li
-          className="menu-item"
-          onMouseEnter={() => handleDropdown("converterTools")}
-          onMouseLeave={() => handleDropdown(null)}
-        >
-          <button>Converter Tools ▾</button>
-          {openDropdown === "converterTools" && <div className="dropdown-content"></div>}
-        </li>
-        <li
-          className="menu-item"
-          onMouseEnter={() => handleDropdown("securityTools")}
-          onMouseLeave={() => handleDropdown(null)}
-        >
-          <button>Security Tools ▾</button>
-          {openDropdown === "securityTools" && <div className="dropdown-content"></div>}
-        </li>
-      </ul>
-      <div className="z__help_cr tooltip tooltip--bottom" data-tooltip="Help Center">
-        <a href="/">Help</a>
-      </div>
-      <div className="auth-buttons">
+
+      <div className="navbar-right">
+        <button onClick={toggleTheme} className="icon-button">🌓</button>
+        <button className="icon-button">❓</button>
+
         {isLoggedIn ? (
-          <button onClick={handleLogout} className="z__login_btn">
-            Logout
-          </button>
+          <div className="profile-container" ref={dropdownRef}>
+            <button className="profile-icon-btn" onClick={() => setShowDropdown(!showDropdown)}>
+              <img src="/user-icon.svg" alt="user" className="user-icon" />
+            </button>
+            {showDropdown && (
+              <div className="profile-dropdown-box">
+                <div className="profile-info">
+                  <img src="/user-icon.svg" alt="User" className="profile-avatar" />
+                  <div className="user-details">
+                    <p className="user-name">{user.name || "User"}</p>
+                    <p className="user-email">{user.email || "email@example.com"}</p>
+                  </div>
+                </div>
+                <hr />
+                <Link to="/account" className="dropdown-item">👤 Account</Link>
+                <Link to="/dashboard" className="dropdown-item">📄 Processed Files</Link>
+                <button onClick={handleLogout} className="dropdown-item logout-btn">🚪 Log out</button>
+              </div>
+            )}
+          </div>
         ) : (
           <>
-            <a href="/login" className="z__login_btn">
-              Log in
-            </a>
-            <a href="/signup" className="z__signup_btn">
-              Sign up
-            </a>
+            <Link to="/login" className="login-btn">Log in</Link>
+            <Link to="/signup" className="signup-btn">Sign up</Link>
           </>
         )}
       </div>
-    </div>
+    </nav>
   );
 };
 
-export default Navbar;
+export default ResponsiveNavbar;

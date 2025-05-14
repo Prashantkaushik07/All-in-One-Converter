@@ -1,5 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./utils/AuthContext";
+import PrivateRoute from "./utils/PrivateRoute"; // ✅ Added this
 
 // Layout and Core Sections
 import AppNavbar from "./Components/Layout/Navbar";
@@ -40,60 +42,77 @@ const CompressBMP = React.lazy(() => import("./Components/ImageCompression/Compr
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <AppNavbar />
-        <React.Suspense fallback={<div>Loading...</div>}>
-          <Routes>
-            {/* Home */}
-            <Route
-              path="/"
-              element={
-                <>
-                  <HomeTop />
-                  <Footer />
-                  <ToolGrid />
-                  <Features />
-                  <WhySection />
-                  <JoinUsSection />
-                  <InfoSection />
-                </>
-              }
-            />
+    <AuthProvider>
+      <Router>
+        <div className="App">
+          <AppNavbar />
 
-            {/* Auth */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/verify-email" element={<VerifyEmailModal />} />
+          <React.Suspense fallback={<div>Loading...</div>}>
+            <Routes>
+              {/* Home */}
+              <Route
+                path="/"
+                element={
+                  <>
+                    <HomeTop />
+                    <Footer />
+                    <ToolGrid />
+                    <Features />
+                    <WhySection />
+                    <JoinUsSection />
+                    <InfoSection />
+                  </>
+                }
+              />
 
-            {/* User */}
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/account" element={<AccountPage />} />
+              {/* Auth */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/verify-email" element={<VerifyEmailModal />} />
 
-            {/* PDF Conversion */}
-            <Route path="/upload-pdf" element={<UploadPDF />} />
-            <Route path="/convert-pdf" element={<ConvertPDF />} />
-            <Route path="/image-to-pdf" element={<ImageToPDF />} />
+              {/* Protected User Routes */}
+              <Route
+                path="/dashboard"
+                element={
+                  <PrivateRoute>
+                    <Dashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/account"
+                element={
+                  <PrivateRoute>
+                    <AccountPage />
+                  </PrivateRoute>
+                }
+              />
 
-            {/* PDF Tools */}
-            <Route path="/compress-pdf" element={<CompressPDF />} />
-            <Route path="/merge-pdf" element={<MergePDF />} />
-            <Route path="/split-pdf" element={<SplitPDF />} />
-            <Route path="/resize-image" element={<ResizeImage />} />
-            <Route path="/protect-pdf" element={<ProtectPDF />} />
+              {/* PDF Conversion */}
+              <Route path="/upload-pdf" element={<UploadPDF />} />
+              <Route path="/convert-pdf" element={<ConvertPDF />} />
+              <Route path="/image-to-pdf" element={<ImageToPDF />} />
 
-            {/* Image Compression Tools */}
-            <Route path="/compress-image" element={<CompressImage />} />
-            <Route path="/compress-jpg" element={<CompressJPG />} />
-            <Route path="/compress-png" element={<CompressPNG />} />
-            <Route path="/compress-jpeg" element={<CompressJPEG />} />
-            <Route path="/compress-webp" element={<CompressWEBP />} />
-            <Route path="/compress-heic" element={<CompressHEIC />} />
-            <Route path="/compress-bmp" element={<CompressBMP />} />
-          </Routes>
-        </React.Suspense>
-      </div>
-    </Router>
+              {/* PDF Tools */}
+              <Route path="/compress-pdf" element={<CompressPDF />} />
+              <Route path="/merge-pdf" element={<MergePDF />} />
+              <Route path="/split-pdf" element={<SplitPDF />} />
+              <Route path="/resize-image" element={<ResizeImage />} />
+              <Route path="/protect-pdf" element={<ProtectPDF />} />
+
+              {/* Image Compression Tools */}
+              <Route path="/compress-image" element={<CompressImage />} />
+              <Route path="/compress-jpg" element={<CompressJPG />} />
+              <Route path="/compress-png" element={<CompressPNG />} />
+              <Route path="/compress-jpeg" element={<CompressJPEG />} />
+              <Route path="/compress-webp" element={<CompressWEBP />} />
+              <Route path="/compress-heic" element={<CompressHEIC />} />
+              <Route path="/compress-bmp" element={<CompressBMP />} />
+            </Routes>
+          </React.Suspense>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 

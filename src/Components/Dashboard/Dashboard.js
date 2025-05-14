@@ -5,6 +5,7 @@ import VerifyEmailModal from "../Auth/VerifyEmailModal";
 
 const Dashboard = () => {
   const [showVerifyModal, setShowVerifyModal] = useState(false);
+  
 
   return (
     <div className="dashboard-container">
@@ -34,7 +35,7 @@ const Dashboard = () => {
 
       <main className="main-content">
         <div className="verify-banner">
-          Verifying your email gives you access to additional features on 11zon.{" "}
+          Verifying your email gives you access to additional features on All-in-One.{" "}
           <button className="verify-now-btn" onClick={() => setShowVerifyModal(true)}>
             Verify now
           </button>

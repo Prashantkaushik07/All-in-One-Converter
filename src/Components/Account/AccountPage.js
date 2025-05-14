@@ -21,7 +21,7 @@ const AccountPage = () => {
   return (
     <div className="account-page">
       <div className="verify-banner">
-        Verifying your email gives you access to additional features on 11zon.{" "}
+        Verifying your email gives you access to additional features on All-in-One.{" "}
         <a href="/">Verify now</a>
       </div>
 
@@ -55,7 +55,7 @@ const AccountPage = () => {
       <div className="card delete-card">
         <h3>Delete Account</h3>
         <p>
-          Deleting an account is permanent on 11zon. Once a user account is
+          Deleting an account is permanent on All-in-One. Once a user account is
           permanently deleted, you can't restore your account.
         </p>
         <a href="/" className="delete-link">Delete Account</a>

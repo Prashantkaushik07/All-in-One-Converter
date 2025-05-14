@@ -8,7 +8,7 @@ function Features() {
       <h1 className="features-heading">The fastest tool for file processing</h1>
       <p className="features-subheading">
         Whether you're looking for convert, compress or edit files, you'll find
-        the perfect solution on 11zon.
+        the perfect solution on All-in-One.
       </p>
       <div className="features-content">
         <div className="features-list">

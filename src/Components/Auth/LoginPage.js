@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import "./LoginPage.css";
 import { useAuth } from "../../utils/AuthContext"; // ✅ import auth context
+import TwoFAModal from "./TwoFAModal"; // adjust relative path if needed
+
 
 
 const LoginPage = () => {
@@ -25,6 +27,9 @@ const LoginPage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState({ name: "", email: "" });
   const [showDropdown, setShowDropdown] = useState(false);
+  const [show2FAModal, setShow2FAModal] = useState(false);
+  const [triggeredFromSignup, setTriggeredFromSignup] = useState(false); // optional, only needed if reused
+
 
 
   const navigate = useNavigate();
@@ -105,8 +110,14 @@ const LoginPage = () => {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-      if (res.ok) {
-        login(data.token, data.name, data.email); // ✅ this will update global context
+
+      // ✅ 2FA condition added before default login
+      if (res.ok && data.twoFARequired) {
+        showPopup("2FA required. Enter your OTP.", "info");
+        setShow2FAModal(true);
+        setTriggeredFromSignup(false); // optional: harmless if you leave it
+      } else if (res.ok) {
+        login(data.token, data.name, data.email); // ✅ update global context
         showPopup("Login successful", "success");
         navigate("/dashboard");
       } else {
@@ -117,6 +128,7 @@ const LoginPage = () => {
       showPopup("An error occurred.", "error");
     }
   };
+
 
   const handleResetSubmit = async (e) => {
     e.preventDefault();

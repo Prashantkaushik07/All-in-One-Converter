@@ -2,6 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import "./LoginPage.css";
+import { useAuth } from "../../utils/AuthContext"; // ✅ import auth context
+import TwoFAModal from "./TwoFAModal"; // adjust relative path if needed
+
+
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -23,9 +27,13 @@ const LoginPage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState({ name: "", email: "" });
   const [showDropdown, setShowDropdown] = useState(false);
+  const [show2FAModal, setShow2FAModal] = useState(false);
+  const [triggeredFromSignup, setTriggeredFromSignup] = useState(false); // optional, only needed if reused
+
 
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -40,7 +48,7 @@ const LoginPage = () => {
   const handleLogout = () => {
     localStorage.clear();
     setIsLoggedIn(false);
-    navigate("/login");
+    navigate("/");
   };
 
   const showPopup = (message, type = "info") => {
@@ -72,6 +80,27 @@ const LoginPage = () => {
     }
   }, [showVerifyOtp]);
 
+  //   const handleLogin = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const res = await fetch("http://localhost:5000/api/auth/login", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ email, password }),
+  //     });
+  //     const data = await res.json();
+  //     if (res.ok) {
+  //       localStorage.setItem("token", data.token);
+  //       showPopup("Login successful", "success");
+  //       navigate("/dashboard");
+  //     } else {
+  //       showPopup(data.error || "Login failed", "error");
+  //     }
+  //   } catch (err) {
+  //     console.error("Login error:", err);
+  //     showPopup("An error occurred.", "error");
+  //   }
+  // };
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -81,8 +110,14 @@ const LoginPage = () => {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-      if (res.ok) {
-        localStorage.setItem("token", data.token);
+
+      // ✅ 2FA condition added before default login
+      if (res.ok && data.twoFARequired) {
+        showPopup("2FA required. Enter your OTP.", "info");
+        setShow2FAModal(true);
+        setTriggeredFromSignup(false); // optional: harmless if you leave it
+      } else if (res.ok) {
+        login(data.token, data.name, data.email); // ✅ update global context
         showPopup("Login successful", "success");
         navigate("/dashboard");
       } else {
@@ -93,6 +128,7 @@ const LoginPage = () => {
       showPopup("An error occurred.", "error");
     }
   };
+
 
   const handleResetSubmit = async (e) => {
     e.preventDefault();
@@ -150,6 +186,11 @@ const LoginPage = () => {
     }
   };
 
+  if (newPassword !== confirmPassword) {
+    alert("Passwords do not match.");
+    return;
+  }
+
   const handleNewPasswordSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -198,8 +239,8 @@ const LoginPage = () => {
           </div>
         ) : (
           <div className="auth-buttons">
-            <Link to="/login" className="auth-link">Log in</Link>
-            <Link to="/signup" className="auth-link">Sign up</Link>
+            {/* <Link to="/login" className="auth-link">Log in</Link>
+            <Link to="/signup" className="auth-link">Sign up</Link> */}
           </div>
         )}
       </div>

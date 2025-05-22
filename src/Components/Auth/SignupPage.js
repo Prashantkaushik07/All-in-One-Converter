@@ -2,6 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoginPage.css";
 
+const texts = [
+  "All-in-One Hub: Convert, Compress, and Edit Your Files",
+  "Fast and Secure File Conversion Tools",
+  "Start Compressing, Merging, and Converting Today"
+];
+
 const SignupPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,20 +37,15 @@ const SignupPage = () => {
   };
 
   const TypingText = () => {
-    const texts = [
-      "All-in-One Hub: Convert, Compress, and Edit Your Files",
-      "Fast and Secure File Conversion Tools",
-      "Start Compressing, Merging, and Converting Today"
-    ];
     const [displayedText, setDisplayedText] = useState("");
     const [textIndex, setTextIndex] = useState(0);
     const [charIndex, setCharIndex] = useState(0);
     const [isDeleting, setIsDeleting] = useState(false);
-  
+
     useEffect(() => {
       const currentText = texts[textIndex];
       let typingSpeed = isDeleting ? 30 : 70;
-  
+
       const timer = setTimeout(() => {
         if (!isDeleting) {
           setDisplayedText(currentText.substring(0, charIndex + 1));
@@ -53,22 +54,20 @@ const SignupPage = () => {
           setDisplayedText(currentText.substring(0, charIndex - 1));
           setCharIndex(charIndex - 1);
         }
-  
-        // If text is fully typed
+
         if (!isDeleting && charIndex === currentText.length) {
           setTimeout(() => setIsDeleting(true), 1500);
         }
-  
-        // If text is fully deleted
+
         if (isDeleting && charIndex === 0) {
           setIsDeleting(false);
           setTextIndex((prev) => (prev + 1) % texts.length);
         }
       }, typingSpeed);
-  
+
       return () => clearTimeout(timer);
     }, [charIndex, isDeleting, textIndex]);
-  
+
     return <h3>{displayedText}<span className="blinking-cursor">|</span></h3>;
   };
 
@@ -76,7 +75,7 @@ const SignupPage = () => {
     <div className="login-page">
       <div className="login-container">
         <div className="login-left">
-          <h3><TypingText /></h3>
+          <TypingText />
         </div>
         <div className="login-right">
           <h1>Get started with All-in-One</h1>

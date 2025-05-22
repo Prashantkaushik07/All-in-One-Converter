@@ -6,6 +6,11 @@ const VerifyEmailModal = ({ email, onClose }) => {
   const [seconds, setSeconds] = useState(60);
   const [disabled, setDisabled] = useState(true);
 
+  
+  // Use email from props or fallback to localStorage
+  const storedEmail = localStorage.getItem("userEmail"); // Adjust key if different
+  const effectiveEmail = email || storedEmail;
+
   useEffect(() => {
     const timer = setInterval(() => {
       setSeconds((prev) => {
@@ -25,7 +30,7 @@ const VerifyEmailModal = ({ email, onClose }) => {
       const res = await fetch("http://localhost:5000/api/auth/verify-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp }),
+        body: JSON.stringify({ email: effectiveEmail, otp }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -46,7 +51,7 @@ const VerifyEmailModal = ({ email, onClose }) => {
     await fetch("http://localhost:5000/api/auth/resend-otp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email: effectiveEmail }),
     });
   };
 
@@ -57,7 +62,10 @@ const VerifyEmailModal = ({ email, onClose }) => {
         <div className="icon">📧</div>
         <h2>Verify your email</h2>
         <p>Please check your inbox and enter OTP.</p>
-        <div className="email-info">We’ve sent an OTP to:<br /><strong>{email}</strong></div>
+        <div className="email-info">
+          We’ve sent an OTP to:<br />
+          <strong>{effectiveEmail}</strong>
+        </div>
         <input
           type="text"
           placeholder="Verification code"

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoginPage.css";
 
+
 const texts = [
   "All-in-One Hub: Convert, Compress, and Edit Your Files",
   "Fast and Secure File Conversion Tools",
@@ -13,6 +14,12 @@ const SignupPage = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const [popup, setPopup] = useState({ show: false, message: "", type: "" });
+
+  const showPopup = (message, type = "info") => {
+    setPopup({ show: true, message, type });
+    setTimeout(() => setPopup({ show: false, message: "", type: "" }), 3000);
+  };
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -25,14 +32,14 @@ const SignupPage = () => {
       const data = await res.json();
       if (res.ok) {
         localStorage.setItem("token", data.token);
-        alert("Account created successfully");
+        showPopup("Account created successfully");
         navigate("/");
       } else {
-        alert(data.error || "Signup failed");
+        showPopup(data.error || "Signup failed");
       }
     } catch (err) {
       console.error("Signup error:", err);
-      alert("An error occurred.");
+      showPopup("An error occurred.");
     }
   };
 
@@ -73,6 +80,12 @@ const SignupPage = () => {
 
   return (
     <div className="login-page">
+      {/* Popup alert box */}
+      {popup.show && (
+        <div className={`popup-box ${popup.type}`}>
+          {popup.message}
+        </div>
+      )}
       <div className="login-container">
         <div className="login-left">
           <TypingText />

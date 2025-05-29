@@ -1,7 +1,7 @@
 import React from "react";
 import OptimizeImage from "../ImageCompression/OptimizeImage";
-import ConvertImage from "./ConvertImage";
-import EditImage from "./EditImage";
+// import ConvertImage from "./ConvertImage";
+// import EditImage from "./EditImage";
 import "./ImageTools.css";
 
 const ImageTools = () => {
@@ -12,12 +12,12 @@ const ImageTools = () => {
         <div className="col-md-4">
           <OptimizeImage />
         </div>
-        <div className="col-md-4">
+        {/* <div className="col-md-4">
           <ConvertImage />
         </div>
         <div className="col-md-4">
           <EditImage />
-        </div>
+        </div> */}
       </div>
     </div>
   );

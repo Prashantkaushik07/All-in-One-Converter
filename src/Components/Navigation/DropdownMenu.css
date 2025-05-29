@@ -1,4 +1,4 @@
-.dropdown-toggle {
+/* .dropdown-toggle {
   color: #007bff;
   font-weight: bold;
 }
@@ -6,4 +6,134 @@
 .dropdown-menu {
   background-color: #f8f9fa;
   border-radius: 4px;
+} */
+/* DropdownMenu.css */
+/* DropdownMenu.css */
+/* .custom-dropdown .dropdown-toggle {
+  color: black;
+  font-weight: 600;
 }
+
+.multi-column-menu {
+  width: max-content;
+  padding: 20px;
+  background-color: #1e1e1e;
+  display: flex;
+}
+
+.dropdown-grid {
+  display: flex;
+  gap: 30px;
+}
+
+.dropdown-section {
+  min-width: 180px;
+}
+
+.dropdown-header {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ccc;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #444;
+  padding-bottom: 5px;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  color: white;
+  text-decoration: none;
+  padding: 6px 0;
+}
+
+.dropdown-item:hover {
+  background-color: #2c2c2c;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.icon-wrap {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  align-items: center;
+  justify-content: center;
+}
+body.light .custom-dropdown .dropdown-menu {
+  background-color: #ffffff;
+  color: #000;
+}
+
+body.dark .custom-dropdown .dropdown-menu {
+  background-color: #1e1e1e;
+  color: #fff;
+}
+
+body.dark .dropdown-item:hover {
+  background-color: #2c2c2c;
+}
+
+body.light .dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+@media (max-width: 768px) {
+  .dropdown-grid {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .dropdown-section {
+    min-width: 100%;
+  }
+} */
+.custom-dropdown .dropdown-menu {
+  width: max-content;
+  min-width: 800px;
+  padding: 1rem;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-radius: 8px;
+}
+
+.dropdown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.dropdown-section .dropdown-header {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 0.4rem 0;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+}
+
+/* 🌙 Dark/Light Mode */
+body.dark {
+  --bg-color: #1a1a1a;
+  --text-color: #f0f0f0;
+}
+
+body.light {
+  --bg-color: #ffffff;
+  --text-color: #1a1a1a;
+}
+
+

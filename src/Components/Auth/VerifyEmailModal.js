@@ -34,14 +34,14 @@ const VerifyEmailModal = ({ email, onClose }) => {
       });
       const data = await res.json();
       if (res.ok) {
-        alert("Email verified successfully!");
+        showPopup("Email verified successfully!");
         onClose();
       } else {
-        alert(data.error || "Invalid OTP");
+        showPopup(data.error || "Invalid OTP");
       }
     } catch (err) {
       console.error("Verification failed", err);
-      alert("Something went wrong");
+      showPopup("Something went wrong");
     }
   };
 

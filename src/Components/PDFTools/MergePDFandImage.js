@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { PDFDocument } from "pdf-lib";
+import "./MergePDFandImage.css"; // Import your CSS file here
 
 const MergePDFandImage = () => {
   const [pdfFile, setPdfFile] = useState(null);

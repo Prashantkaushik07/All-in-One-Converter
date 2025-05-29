@@ -1,0 +1,37 @@
+<!-- backend/emails/loginVerification.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Login Notification</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+    .container { background: #fff; border-radius: 8px; padding: 25px; max-width: 600px; margin: auto; }
+    h2 { color: #007bff; }
+    .btn {
+      background: #d9534f;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 4px;
+      display: inline-block;
+      margin-top: 20px;
+    }
+    .info { font-size: 14px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>👋 Hello {{username}},</h2>
+    <p>You’ve successfully logged in with 2FA.</p>
+    <ul>
+      <li><strong>Login Time:</strong> {{loginTime}}</li>
+      <li><strong>Location:</strong> {{location}}</li>
+      <li><strong>Browser:</strong> {{browser}}</li>
+      <li><strong>IP Address:</strong> {{ip}}</li>
+    </ul>
+    <a href="{{disable2FAURL}}" class="btn">Disable 2FA</a>
+    <p class="info">If you didn’t initiate this, please secure your account immediately.</p>
+  </div>
+</body>
+</html>

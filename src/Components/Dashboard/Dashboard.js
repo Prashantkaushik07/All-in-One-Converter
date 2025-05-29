@@ -20,6 +20,7 @@ const Dashboard = () => {
   const [twoFASecret, setTwoFASecret] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [show2FAModal, setShow2FAModal] = useState(false);
+ const [popup, setPopup] = useState({ show: false, message: "", type: "" });
 
   // eslint-disable-next-line
   const { user, login } = useAuth();
@@ -35,6 +36,11 @@ const Dashboard = () => {
       }
     }
   }, []);
+
+  const showPopup = (message, type = "info") => {
+    setPopup({ show: true, message, type });
+    setTimeout(() => setPopup({ show: false, message: "", type: "" }), 3000);
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -66,9 +72,9 @@ const Dashboard = () => {
     if (res.ok) {
       setTwoFAStatus("enabled");
       setShow2FAModal(false);
-      alert("2FA setup successfully");
+      showPopup("2FA setup successfully");
     } else {
-      alert(data.error || "Failed to verify 2FA");
+      showPopup(data.error || "Failed to verify 2FA");
     }
   };
 
@@ -89,18 +95,18 @@ const Dashboard = () => {
       const data = await res.json();
       if (res.ok) {
         login(localStorage.getItem("token"), data.user.name, data.user.email, data.user.profilePic);
-        alert("Profile updated successfully");
+        showPopup("Profile updated successfully");
         setShowEditor(false);
       } else {
-        alert(data.error || "Update failed");
+        showPopup(data.error || "Update failed");
       }
     } catch (err) {
-      alert("Something went wrong.");
+      showPopup("Something went wrong.");
     }
   };
 
   const handlePasswordUpdate = async () => {
-    if (!password) return alert("Password required");
+    if (!password) return showPopup("Password required");
     try {
       const res = await fetch("http://localhost:5000/api/user/update-password", {
         method: "POST",
@@ -108,10 +114,10 @@ const Dashboard = () => {
         body: JSON.stringify({ email: userEmail, newPassword: password })
       });
       const data = await res.json();
-      if (res.ok) alert("Password updated");
-      else alert(data.error);
+      if (res.ok) showPopup("Password updated");
+      else showPopup(data.error);
     } catch (err) {
-      alert("Password update failed");
+      showPopup("Password update failed");
     }
   };
 
@@ -132,9 +138,9 @@ const Dashboard = () => {
       if (res.ok) {
         localStorage.clear();
         window.location.href = "/signup";
-      } else alert(data.error);
+      } else showPopup(data.error);
     } catch (err) {
-      alert("Server error");
+      showPopup("Server error");
     }
   };
 
@@ -154,20 +160,20 @@ const Dashboard = () => {
                 className="otp-input"
               />
               <div className="actions">
-                <button onClick={handleVerify2FA} className="btn verify">Verify</button>
+                {/* <button onClick={handleVerify2FA} className="btn verify">Verify</button> */}
                 <button onClick={() => setShow2FAModal(false)} className="btn cancel">Cancel</button>
               </div>
             </div>
           </div>
         )}
 
-        <div className="security-section">
+        {/* <div className="security-section">
           <h2>Two-Factor Authentication</h2>
           <p>Status: <strong>{twoFAStatus}</strong></p>
           <button onClick={handleEnable2FA} className="btn enable">Enable</button>
-        </div>
+        </div> */}
       </div>
-      {/* {show2FAModal && (
+      {show2FAModal && (
       <div className="modal">
         <h3>Scan QR with Google Authenticator</h3>
         <img src={qrCode} alt="2FA QR Code" />
@@ -181,7 +187,13 @@ const Dashboard = () => {
         <button onClick={handleVerify2FA}>Verify</button>
         <button onClick={() => setShow2FAModal(false)}>Cancel</button>
       </div>
-    )} */}
+    )}
+    {/* Popup alert box */}
+      {popup.show && (
+        <div className={`popup-box ${popup.type}`}>
+          {popup.message}
+        </div>
+      )}
 
       <div className="dashboard-container">
         {showVerifyModal && (

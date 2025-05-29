@@ -31,7 +31,8 @@ const MergePDF = React.lazy(() => import("./Components/PDFTools/MergePDF"));
 const SplitPDF = React.lazy(() => import("./Components/PDFTools/SplitPDF"));
 const ResizeImage = React.lazy(() => import("./Components/PDFTools/ResizeImage"));
 const ProtectPDF = React.lazy(() => import("./Components/PDFTools/ProtectPDF"));
-
+const MergePDFandImage = React.lazy(() => import("./Components/PDFTools/MergePDFandImage"));
+const ImageTools = React.lazy(() => import("./Components/Tools/ImageTools")); // If you want it as a main screen
 const CompressImage = React.lazy(() => import("./Components/ImageCompression/CompressImage"));
 const CompressJPG = React.lazy(() => import("./Components/ImageCompression/CompressJPG"));
 const CompressPNG = React.lazy(() => import("./Components/ImageCompression/CompressPNG"));
@@ -39,6 +40,10 @@ const CompressJPEG = React.lazy(() => import("./Components/ImageCompression/Comp
 const CompressWEBP = React.lazy(() => import("./Components/ImageCompression/CompressWEBP"));
 const CompressHEIC = React.lazy(() => import("./Components/ImageCompression/CompressHEIC"));
 const CompressBMP = React.lazy(() => import("./Components/ImageCompression/CompressBMP"));
+// const PdfToJpg = React.lazy(() => import("./Components/PDFConversion/PdfToJpg"));
+// const PdfToWord = React.lazy(() => import("./Components/PDFConversion/PdfToWord"));
+// const WordToPdf = React.lazy(() => import("./Components/PDFConversion/WordToPdf"));
+
 
 function App() {
   return (
@@ -99,6 +104,8 @@ function App() {
               <Route path="/split-pdf" element={<SplitPDF />} />
               <Route path="/resize-image" element={<ResizeImage />} />
               <Route path="/protect-pdf" element={<ProtectPDF />} />
+              <Route path="/merge-pdf-image" element={<MergePDFandImage />} />
+              <Route path="/image-tools" element={<ImageTools />} />
 
               {/* Image Compression Tools */}
               <Route path="/compress-image" element={<CompressImage />} />
@@ -108,6 +115,10 @@ function App() {
               <Route path="/compress-webp" element={<CompressWEBP />} />
               <Route path="/compress-heic" element={<CompressHEIC />} />
               <Route path="/compress-bmp" element={<CompressBMP />} />
+              {/* <Route path="/pdf-to-jpg" element={<PdfToJpg />} />
+              <Route path="/pdf-to-word" element={<PdfToWord />} />
+              <Route path="/word-to-pdf" element={<WordToPdf />} /> */}
+
             </Routes>
           </React.Suspense>
         </div>

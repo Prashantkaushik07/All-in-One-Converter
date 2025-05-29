@@ -47,14 +47,14 @@ const AccountPage = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        alert("Account deleted successfully.");
+        showPopup("Account deleted successfully.");
         localStorage.clear();
         window.location.href = "/signup";
       } else {
-        alert(data.error || "Failed to delete account.");
+        showPopup(data.error || "Failed to delete account.");
       }
     } catch (err) {
-      alert("Server error while deleting account.");
+      showPopup("Server error while deleting account.");
     }
   };
 

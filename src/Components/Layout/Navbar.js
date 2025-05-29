@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import { useAuth } from "../../utils/AuthContext"; // ✅ now used
 import { useRef, useEffect } from "react";
+import DropdownMenu from "../Navigation/DropdownMenu";
 
 
 const ResponsiveNavbar = () => {
@@ -44,15 +45,10 @@ const ResponsiveNavbar = () => {
           <strong>All</strong><span className="power">in</span><strong>One⏻</strong>
         </Link>
 
-        <div className="dropdown">
-          <button className="dropbtn">PDF Tools ▾</button>
-        </div>
-        <div className="dropdown">
-          <button className="dropbtn">Image Tools ▾</button>
-        </div>
-        <div className="dropdown">
-          <button className="dropbtn">Converter Tools ▾</button>
-        </div>
+        <div className="dropdown"><DropdownMenu title="PDF Tools" /></div>
+        <div className="dropdown"><DropdownMenu title="Image Tools" /></div>
+        <div className="dropdown"><DropdownMenu title="Converter Tools" /></div>
+
       </div>
 
       <div className="navbar-right">

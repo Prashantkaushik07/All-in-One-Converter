@@ -8,6 +8,11 @@ const ResetPassword = () => {
   const location = useLocation();
   const email = location.state?.email;
 
+  const showPopup = (message, type = "info") => {
+    setPopup({ show: true, message, type });
+    setTimeout(() => setPopup({ show: false, message: "", type: "" }), 3000);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -20,14 +25,14 @@ const ResetPassword = () => {
 
       const data = await res.json();
       if (res.ok) {
-        alert("Password reset successful. Please log in.");
+        showPopup("Password reset successful. Please log in.");
         navigate("/login"); // ✅ redirect to login page
       } else {
-        alert(data.error || "Reset failed.");
+        showPopup(data.error || "Reset failed.");
       }
     } catch (err) {
       console.error("Reset error:", err);
-      alert("Something went wrong.");
+      showPopup("Something went wrong.");
     }
   };
 

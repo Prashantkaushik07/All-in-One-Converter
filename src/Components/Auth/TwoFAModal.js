@@ -1,3 +1,4 @@
+// TwoFAModal.js
 import React, { useState, useEffect } from "react";
 import "./TwoFAModal.css";
 

@@ -28,7 +28,11 @@ const LoginPage = () => {
   const [user, setUser] = useState({ name: "", email: "" });
   const [showDropdown, setShowDropdown] = useState(false);
   const [show2FAModal, setShow2FAModal] = useState(false);
+  // eslint-disable-next-line
   const [triggeredFromSignup, setTriggeredFromSignup] = useState(false); // optional, only needed if reused
+  const [pendingToken, setPendingToken] = useState(null); // holds token before 2FA
+  const [pendingUser, setPendingUser] = useState({ name: "", email: "" }); // holds name/email before 2FA
+
 
 
 
@@ -101,6 +105,33 @@ const LoginPage = () => {
   //     showPopup("An error occurred.", "error");
   //   }
   // };
+  // const handleLogin = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const res = await fetch("http://localhost:5000/api/auth/login", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ email, password }),
+  //     });
+  //     const data = await res.json();
+
+  //     // ✅ 2FA condition added before default login
+  //     if (res.ok && data.twoFARequired) {
+  //       showPopup("2FA required. Enter your OTP.", "info");
+  //       setShow2FAModal(true);
+  //       setTriggeredFromSignup(false); // optional: harmless if you leave it
+  //     } else if (res.ok) {
+  //       login(data.token, data.name, data.email); // ✅ update global context
+  //       showPopup("Login successful", "success");
+  //       navigate("/dashboard");
+  //     } else {
+  //       showPopup(data.error || "Login failed", "error");
+  //     }
+  //   } catch (err) {
+  //     console.error("Login error:", err);
+  //     showPopup("An error occurred.", "error");
+  //   }
+  // };
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -109,13 +140,14 @@ const LoginPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+
       const data = await res.json();
 
-      // ✅ 2FA condition added before default login
       if (res.ok && data.twoFARequired) {
         showPopup("2FA required. Enter your OTP.", "info");
-        setShow2FAModal(true);
-        setTriggeredFromSignup(false); // optional: harmless if you leave it
+        setPendingToken(data.token); // temporarily store token
+        setPendingUser({ name: data.name, email: data.email }); // temporarily store user
+        setShow2FAModal(true); // show 2FA modal
       } else if (res.ok) {
         login(data.token, data.name, data.email); // ✅ update global context
         showPopup("Login successful", "success");
@@ -128,6 +160,30 @@ const LoginPage = () => {
       showPopup("An error occurred.", "error");
     }
   };
+  const handle2FAVerification = async ({ email, token, rememberDevice }) => {
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/verify-2fa", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp: token, rememberDevice }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        login(pendingToken, pendingUser.name, pendingUser.email);
+        showPopup("2FA verification successful", "success");
+        setShow2FAModal(false);
+        navigate("/dashboard");
+      } else {
+        showPopup(data.error || "Invalid OTP", "error");
+      }
+    } catch (err) {
+      console.error("2FA verification failed:", err);
+      showPopup("Failed to verify OTP", "error");
+    }
+  };
+
 
 
   const handleResetSubmit = async (e) => {
@@ -187,12 +243,18 @@ const LoginPage = () => {
   };
 
   if (newPassword !== confirmPassword) {
-    alert("Passwords do not match.");
+    showPopup("Passwords do not match.");
     return;
   }
 
   const handleNewPasswordSubmit = async (e) => {
     e.preventDefault();
+
+    if (newPassword !== confirmPassword) {
+      showPopup("Passwords do not match.", "error");
+      return;
+    }
+
     try {
       const res = await fetch("http://localhost:5000/api/auth/reset-password", {
         method: "POST",
@@ -214,6 +276,7 @@ const LoginPage = () => {
       showPopup("Something went wrong.", "error");
     }
   };
+
 
   return (
     <div className="login-page">
@@ -250,6 +313,13 @@ const LoginPage = () => {
         <div className={`popup-box ${popup.type}`}>
           {popup.message}
         </div>
+      )}
+      {show2FAModal && (
+        <TwoFAModal
+          email={pendingUser.email}
+          onClose={() => setShow2FAModal(false)}
+          onVerify={handle2FAVerification}
+        />
       )}
 
       <div className="login-container">

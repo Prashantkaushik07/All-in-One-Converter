@@ -3,8 +3,11 @@ import { jwtDecode } from "jwt-decode";
 import "./Dashboard.css";
 import VerifyEmailModal from "../Auth/VerifyEmailModal";
 import { useAuth } from "../../utils/AuthContext";
+import { useTranslation } from "react-i18next";
+
 
 const Dashboard = () => {
+  const { user, login } = useAuth();
   const [userEmail, setUserEmail] = useState("");
   const [showEditor, setShowEditor] = useState(false);
   const [name, setName] = useState("prashant kaushik");
@@ -20,10 +23,20 @@ const Dashboard = () => {
   const [twoFASecret, setTwoFASecret] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [show2FAModal, setShow2FAModal] = useState(false);
- const [popup, setPopup] = useState({ show: false, message: "", type: "" });
-
+  const [popup, setPopup] = useState({ show: false, message: "", type: "" });
   // eslint-disable-next-line
-  const { user, login } = useAuth();
+  const [processedFiles, setProcessedFiles] = useState([]);
+  const { i18n, t } = useTranslation();
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+console.log("User from context", user);
+  // eslint-disable-next-line
+  
+  const countryFlags = {
+    India: "🇮🇳",
+    USA: "🇺🇸",
+    UK: "🇬🇧",
+    Germany: "🇩🇪"
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -94,9 +107,13 @@ const Dashboard = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        login(localStorage.getItem("token"), data.user.name, data.user.email, data.user.profilePic);
-        showPopup("Profile updated successfully");
-        setShowEditor(false);
+        login(
+          localStorage.getItem("token"),
+          data.user.name,
+          data.user.email,
+          data.user.profilePic
+        );
+        setProfilePic(data.user.profilePic); // ✅ Update local image preview
       } else {
         showPopup(data.error || "Update failed");
       }
@@ -143,55 +160,51 @@ const Dashboard = () => {
       showPopup("Server error");
     }
   };
+  const handleLanguageChange = (e) => {
+    const selectedLang = e.target.value;
+    i18n.changeLanguage(selectedLang);
+    localStorage.setItem("language", selectedLang);
+    showPopup(`Language changed to ${selectedLang}`);
+  };
+
+  useEffect(() => {
+    if (user.profilePic) {
+      setProfilePic(user.profilePic);
+    }
+  }, [user.profilePic]);
 
   return (
     <>
-      <div className="dashboard">
-        {show2FAModal && (
-          <div className="modal-overlay">
-            <div className="modal-box">
-              <h3>Scan QR with Google Authenticator</h3>
-              {qrCode && <img src={qrCode} alt="2FA QR Code" className="qr-image" />}
-              <input
-                type="text"
-                placeholder="Enter 6-digit code"
-                value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value)}
-                className="otp-input"
-              />
-              <div className="actions">
-                {/* <button onClick={handleVerify2FA} className="btn verify">Verify</button> */}
-                <button onClick={() => setShow2FAModal(false)} className="btn cancel">Cancel</button>
-              </div>
+      {show2FAModal && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h3>Scan QR with Google Authenticator</h3>
+            {qrCode && <img src={qrCode} alt="2FA QR Code" className="qr-image" />}
+            <input
+              type="text"
+              placeholder="Enter 6-digit code"
+              value={otpCode}
+              onChange={(e) => setOtpCode(e.target.value)}
+              className="otp-input"
+            />
+            <div className="actions">
+              <button onClick={handleVerify2FA} className="btn verify">Verify</button>
+              <button onClick={() => setShow2FAModal(false)} className="btn cancel">Cancel</button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* <div className="security-section">
-          <h2>Two-Factor Authentication</h2>
-          <p>Status: <strong>{twoFAStatus}</strong></p>
-          <button onClick={handleEnable2FA} className="btn enable">Enable</button>
-        </div> */}
-      </div>
-      {show2FAModal && (
-      <div className="modal">
-        <h3>Scan QR with Google Authenticator</h3>
-        <img src={qrCode} alt="2FA QR Code" />
-        <input
-          type="text"
-          placeholder="Enter 6-digit code"
-          value={otpCode}
-          onChange={(e) => setOtpCode(e.target.value)}
-          className="input-field"
-        />
-        <button onClick={handleVerify2FA}>Verify</button>
-        <button onClick={() => setShow2FAModal(false)}>Cancel</button>
-      </div>
-    )}
-    {/* Popup alert box */}
       {popup.show && (
         <div className={`popup-box ${popup.type}`}>
           {popup.message}
+        </div>
+      )}
+      {showSuccessModal && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h3>✅ Profile updated successfully!</h3>
+          </div>
         </div>
       )}
 
@@ -204,15 +217,15 @@ const Dashboard = () => {
           <div className="sidebar-section">
             <h4>MY PROFILE</h4>
             <ul>
-              <li className={activeTab === "account" ? "active" : ""} onClick={() => setActiveTab("account")}>Account</li>
-              <li className={activeTab === "security" ? "active" : ""} onClick={() => setActiveTab("security")}>Security</li>
-              <li>Settings</li>
+              <li className={activeTab === "account" ? "active" : ""} onClick={() => setActiveTab("account")}>{t("Account")}</li>
+              <li className={activeTab === "security" ? "active" : ""} onClick={() => setActiveTab("security")}>{t("Security")}</li>
+              <li className={activeTab === "settings" ? "active" : ""} onClick={() => setActiveTab("settings")}>{t("Settings")}</li>
             </ul>
           </div>
           <div className="sidebar-section">
             <h4>ACTIVITY</h4>
             <ul>
-              <li>Processed Files</li>
+              <li className={activeTab === "activity" ? "active" : ""} onClick={() => setActiveTab("activity")}>{t("Processed Files")}</li>
             </ul>
           </div>
         </aside>
@@ -223,7 +236,9 @@ const Dashboard = () => {
               <div className="card profile-card">
                 <div className="card-header">
                   <h3>Profile</h3>
-                  <button onClick={() => setShowEditor(true)}>Change</button>
+                  {!showEditor && (
+                    <button onClick={() => setShowEditor(true)}>Change</button>
+                  )}
                 </div>
                 {!showEditor ? (
                   <div className="profile-content">
@@ -236,22 +251,56 @@ const Dashboard = () => {
                     </div>
                     <div className="profile-info">
                       <p><strong>Name:</strong> {name}</p>
-                      <p><strong>Country:</strong> 🇮🇳 {country}</p>
+                      <p><strong>Country:</strong> {countryFlags[country]} {country}</p>
                     </div>
                   </div>
                 ) : (
-                  <form onSubmit={handleProfileUpdate} className="profile-editor">
-                    <label htmlFor="profilePicInput" className="avatar-label">
-                      <img src={profilePic || "/user-icon.svg"} alt="Profile" className="profile-avatar-large" />
-                      <input type="file" id="profilePicInput" style={{ display: "none" }} onChange={handleImageChange} />
-                      <span className="camera-icon">📷</span>
-                    </label>
-                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} required className="input-field" />
-                    <select value={country} onChange={(e) => setCountry(e.target.value)} className="input-field">
-                      <option value="India">🇮🇳 India</option>
-                      <option value="USA">🇺🇸 USA</option>
-                    </select>
-                    <button type="submit" className="update-btn">UPDATE</button>
+                  <form onSubmit={handleProfileUpdate} className="profile-editor updated-form">
+                    <div className="form-header">
+                      <h3>Profile</h3>
+                      <button type="button" className="form-close" onClick={() => setShowEditor(false)}>Close</button>
+                    </div>
+                    <div className="form-avatar-wrapper">
+                      <img
+                        src={profilePic?.startsWith("http") ? profilePic : "/user-icon.svg"}
+                        alt="Profile"
+                        className="profile-avatar-large"
+                      />
+                      <label htmlFor="profilePicInput" className="avatar-label upload-btn">
+                        Upload
+                        <input
+                          type="file"
+                          id="profilePicInput"
+                          style={{ display: "none" }}
+                          onChange={handleImageChange}
+                        />
+                      </label>
+                    </div>
+                    <div className="form-group">
+                      <label>Name</label>
+                      <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                        className="input-field"
+                        placeholder="Name"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Country</label>
+                      <select
+                        value={country}
+                        onChange={(e) => setCountry(e.target.value)}
+                        className="input-field"
+                      >
+                        <option value="India">🇮🇳 India</option>
+                        <option value="USA">🇺🇸 USA</option>
+                        <option value="UK">🇬🇧 UK</option>
+                        <option value="Germany">🇩🇪 Germany</option>
+                      </select>
+                    </div>
+                    <button type="submit" className="update-btn full-width">UPDATE</button>
                   </form>
                 )}
               </div>
@@ -269,8 +318,8 @@ const Dashboard = () => {
 
               <div className="card delete-card">
                 <h3>Delete Account</h3>
-                <p>Deleting is permanent. This cannot be undone.</p>
-                <span className="delete-link" onClick={handleDeleteAccount}>Delete Account</span>
+                <p>Deleting an account is permanent. Once deleted, it cannot be restored.</p>
+                <button className="delete-link" onClick={handleDeleteAccount}>Delete Account</button>
               </div>
             </>
           )}
@@ -295,15 +344,65 @@ const Dashboard = () => {
 
               <div className="card">
                 <div className="card-header">
-                  <h3>Two factor authentication</h3>
+                  <h3>Two-Factor Authentication</h3>
                   <span className="verify-link" onClick={handleEnable2FA}>Enable</span>
                 </div>
                 <div className="card-body">
-                  <p>Enabling 2FA enhances security using your password + QR-based auth.</p>
+                  <p>Enabling 2FA enhances security using password + app-generated OTP.</p>
                   <p>Status: <strong>{twoFAStatus}</strong></p>
                 </div>
               </div>
             </>
+          )}
+
+          {activeTab === "settings" && (
+            <div className="card">
+              <div className="card-header">
+                <h3>{t("Language")}</h3>
+              </div>
+              <div className="card-body">
+                <label htmlFor="language-select">{t("Current Language")}:</label>
+                <select id="language-select" value={i18n.language} onChange={handleLanguageChange} className="input-field">
+                  <option value="en">English</option>
+                  <option value="hi">Hindi</option>
+                  <option value="fr">French</option>
+                  <option value="de">German</option>
+                  <option value="zh">Chinese</option>
+                </select>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "activity" && (
+            <div className="processed-files-container">
+              <h2 className="table-title">Processed files</h2>
+              <table className="processed-files-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Tool</th>
+                    <th>N Files</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {processedFiles.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" className="no-files">No file found.</td>
+                    </tr>
+                  ) : (
+                    processedFiles.map((file, index) => (
+                      <tr key={index}>
+                        <td>{file.name}</td>
+                        <td>{file.tool}</td>
+                        <td>{file.count}</td>
+                        <td>{new Date(file.date).toLocaleDateString()}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           )}
         </main>
       </div>

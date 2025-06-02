@@ -1,4 +1,4 @@
-.account-page {
+/* .account-page {
   padding: 30px;
   color: #fff;
   background-color: #1e1e1e;
@@ -66,10 +66,10 @@
   color: #59aaff;
   text-decoration: underline;
   font-size: 0.9rem;
-}
+} */
 
 /* Profile edit box */
-.card.profile-editor {
+/* .card.profile-editor {
   background-color: #1e1e1e;
   color: white;
   padding: 2rem;
@@ -77,10 +77,10 @@
   max-width: 450px;
   margin: 2rem auto;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
+} */
 
 /* Profile header with 'Close' */
-.card-header {
+/* .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -96,10 +96,10 @@
   color: #3399ff;
   cursor: pointer;
   font-size: 1rem;
-}
+} */
 
 /* Avatar preview and camera icon */
-.avatar-upload {
+/* .avatar-upload {
   display: flex;
   justify-content: center;
   margin-bottom: 1rem;
@@ -124,10 +124,10 @@
   font-size: 0.9rem;
   color: white;
   cursor: pointer;
-}
+} */
 
 /* Input styling */
-.input-field {
+/* .input-field {
   width: 100%;
   padding: 0.7rem;
   margin-bottom: 1rem;
@@ -135,10 +135,10 @@
   color: white;
   border: 1px solid #444;
   border-radius: 6px;
-}
+} */
 
 /* Blue Update button */
-.update-btn {
+/* .update-btn {
   width: 100%;
   padding: 0.75rem;
   background-color: #007bff;
@@ -161,4 +161,4 @@
   display: inline-block;
   margin-top: 0.5rem;
   text-decoration: underline;
-}
+} */

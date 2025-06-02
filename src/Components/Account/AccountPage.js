@@ -45,16 +45,17 @@ const AccountPage = () => {
         },
         body: JSON.stringify({ email: userEmail })
       });
+      // eslint-disable-next-line
       const data = await res.json();
       if (res.ok) {
-        showPopup("Account deleted successfully.");
+        
         localStorage.clear();
         window.location.href = "/signup";
       } else {
-        showPopup(data.error || "Failed to delete account.");
+        
       }
     } catch (err) {
-      showPopup("Server error while deleting account.");
+      
     }
   };
 

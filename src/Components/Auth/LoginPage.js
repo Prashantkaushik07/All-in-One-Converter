@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import "./LoginPage.css";
 import { useAuth } from "../../utils/AuthContext"; // ✅ import auth context
 import TwoFAModal from "./TwoFAModal"; // adjust relative path if needed
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
 
 
 
@@ -30,7 +32,9 @@ const LoginPage = () => {
   const [show2FAModal, setShow2FAModal] = useState(false);
   // eslint-disable-next-line
   const [triggeredFromSignup, setTriggeredFromSignup] = useState(false); // optional, only needed if reused
+  // eslint-disable-next-line
   const [pendingToken, setPendingToken] = useState(null); // holds token before 2FA
+  // eslint-disable-next-line
   const [pendingUser, setPendingUser] = useState({ name: "", email: "" }); // holds name/email before 2FA
 
 
@@ -54,6 +58,33 @@ const LoginPage = () => {
     setIsLoggedIn(false);
     navigate("/");
   };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+  try {
+    const tokenId = credentialResponse.credential;
+    // eslint-disable-next-line
+    const decoded = jwtDecode(tokenId); // Optional: to read email/name
+
+    const res = await fetch("http://localhost:5000/api/auth/google-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ credential: tokenId }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      login(data.token, data.name, data.email); // ✅ use your AuthContext login method
+      showPopup("Login successful via Google", "success");
+      navigate("/dashboard");
+    } else {
+      showPopup(data.error || "Google login failed", "error");
+    }
+  } catch (err) {
+    console.error("Google login error:", err);
+    showPopup("Google login failed", "error");
+  }
+};
 
   const showPopup = (message, type = "info") => {
     setPopup({ show: true, message, type });
@@ -84,105 +115,85 @@ const LoginPage = () => {
     }
   }, [showVerifyOtp]);
 
-  //   const handleLogin = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const res = await fetch("http://localhost:5000/api/auth/login", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ email, password }),
-  //     });
-  //     const data = await res.json();
-  //     if (res.ok) {
-  //       localStorage.setItem("token", data.token);
-  //       showPopup("Login successful", "success");
-  //       navigate("/dashboard");
-  //     } else {
-  //       showPopup(data.error || "Login failed", "error");
-  //     }
-  //   } catch (err) {
-  //     console.error("Login error:", err);
-  //     showPopup("An error occurred.", "error");
-  //   }
-  // };
-  // const handleLogin = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const res = await fetch("http://localhost:5000/api/auth/login", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ email, password }),
-  //     });
-  //     const data = await res.json();
-
-  //     // ✅ 2FA condition added before default login
-  //     if (res.ok && data.twoFARequired) {
-  //       showPopup("2FA required. Enter your OTP.", "info");
-  //       setShow2FAModal(true);
-  //       setTriggeredFromSignup(false); // optional: harmless if you leave it
-  //     } else if (res.ok) {
-  //       login(data.token, data.name, data.email); // ✅ update global context
-  //       showPopup("Login successful", "success");
-  //       navigate("/dashboard");
-  //     } else {
-  //       showPopup(data.error || "Login failed", "error");
-  //     }
-  //   } catch (err) {
-  //     console.error("Login error:", err);
-  //     showPopup("An error occurred.", "error");
-  //   }
-  // };
   const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+  e.preventDefault();
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (res.ok && data.twoFARequired) {
-        showPopup("2FA required. Enter your OTP.", "info");
-        setPendingToken(data.token); // temporarily store token
-        setPendingUser({ name: data.name, email: data.email }); // temporarily store user
-        setShow2FAModal(true); // show 2FA modal
-      } else if (res.ok) {
-        login(data.token, data.name, data.email); // ✅ update global context
-        showPopup("Login successful", "success");
-        navigate("/dashboard");
-      } else {
-        showPopup(data.error || "Login failed", "error");
-      }
-    } catch (err) {
-      console.error("Login error:", err);
-      showPopup("An error occurred.", "error");
+    if (res.ok && data.message === "OTP sent") {
+      showPopup("2FA required. Enter your OTP.", "info");
+
+      // ✅ Save temporarily
+      localStorage.setItem("pendingToken", data.token);
+      localStorage.setItem("pendingUserEmail", email);
+      localStorage.setItem("pendingUserName", data.name || "");
+
+      setShow2FAModal(true); // Show modal
+    } else if (res.ok && data.token) {
+      // ✅ Normal login without 2FA
+      login(data.token, data.name, data.email, data.profilePic || "");
+      showPopup("Login successful", "success");
+      navigate("/dashboard");
+    } else {
+      showPopup(data.error || "Login failed", "error");
     }
-  };
-  const handle2FAVerification = async ({ email, token, rememberDevice }) => {
-    try {
-      const res = await fetch("http://localhost:5000/api/auth/verify-2fa", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp: token, rememberDevice }),
-      });
+  } catch (err) {
+    console.error("Login error:", err);
+    showPopup("An error occurred.", "error");
+  }
+};
 
-      const data = await res.json();
+  const handle2FAVerification = async ({ email, token: otpInput, rememberDevice }) => {
+  try {
+    const jwtToken = localStorage.getItem("pendingToken");
 
-      if (res.ok) {
-        login(pendingToken, pendingUser.name, pendingUser.email);
-        showPopup("2FA verification successful", "success");
-        setShow2FAModal(false);
-        navigate("/dashboard");
-      } else {
-        showPopup(data.error || "Invalid OTP", "error");
-      }
-    } catch (err) {
-      console.error("2FA verification failed:", err);
-      showPopup("Failed to verify OTP", "error");
+    if (!jwtToken || jwtToken === "undefined") {
+      showPopup("Missing login token. Please log in again.", "error");
+      return;
     }
-  };
+
+    const res = await fetch("http://localhost:5000/api/auth/verify-login-2fa", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        otp: otpInput,        // ✅ OTP field
+        token: jwtToken,      // ✅ JWT from login phase
+        rememberDevice,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      login(data.token, data.name, data.email, data.profilePic || "");
+      showPopup("2FA verification successful", "success");
+
+      // ✅ Cleanup temporary data
+      localStorage.removeItem("pendingToken");
+      localStorage.removeItem("pendingUserEmail");
+      localStorage.removeItem("pendingUserName");
+
+      if (rememberDevice) {
+        localStorage.setItem(`2fa_trusted_${email}`, "true");
+      }
+
+      setShow2FAModal(false);
+      navigate("/dashboard");
+    } else {
+      showPopup(data.error || "Invalid OTP", "error");
+    }
+  } catch (err) {
+    console.error("2FA verification failed:", err);
+    showPopup("Something went wrong during verification", "error");
+  }
+};
 
 
 
@@ -242,11 +253,6 @@ const LoginPage = () => {
     }
   };
 
-  if (newPassword !== confirmPassword) {
-    showPopup("Passwords do not match.");
-    return;
-  }
-
   const handleNewPasswordSubmit = async (e) => {
     e.preventDefault();
 
@@ -302,8 +308,6 @@ const LoginPage = () => {
           </div>
         ) : (
           <div className="auth-buttons">
-            {/* <Link to="/login" className="auth-link">Log in</Link>
-            <Link to="/signup" className="auth-link">Sign up</Link> */}
           </div>
         )}
       </div>
@@ -316,9 +320,10 @@ const LoginPage = () => {
       )}
       {show2FAModal && (
         <TwoFAModal
-          email={pendingUser.email}
+          email={localStorage.getItem("pendingUserEmail")} // ✅ FIXED
           onClose={() => setShow2FAModal(false)}
           onVerify={handle2FAVerification}
+          showPopup={showPopup} // ✅ Add this line
         />
       )}
 
@@ -453,7 +458,10 @@ const LoginPage = () => {
           ) : (
             <>
               <h1>Log in to All-in-One</h1>
-              <button className="google-btn">Continue with Google</button>
+              <GoogleLogin
+        onSuccess={handleGoogleSuccess}
+        onError={() => console.log("Login Failed")}
+      />
               <div className="separator"><span>or</span></div>
               <form onSubmit={handleLogin} className="login-form">
                 <div className="form-group">

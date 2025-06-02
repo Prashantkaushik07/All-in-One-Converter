@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
-const connectDB = require("./db"); // ✅ use this
+const connectDB = require("./db");
 const userRoutes = require("./routes/user");
 const authRoutes = require("./routes/auth");
 const uploadRoutes = require("./routes/upload");
@@ -10,15 +10,16 @@ const uploadRoutes = require("./routes/upload");
 const app = express();
 
 // Middleware
-app.use(cors());
-app.use(express.json());
 app.use("/uploads", express.static("uploads"));
+app.use(cors());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 // Connect MongoDB
-connectDB(); // ✅ only this one
+connectDB();
 
 // Routes
-app.use("/api/user", userRoutes);
+app.use("/api/user", userRoutes);      // ✅ Only once
 app.use("/api/auth", authRoutes);
 app.use("/api/upload", uploadRoutes);
 

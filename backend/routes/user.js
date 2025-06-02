@@ -6,36 +6,83 @@ const User = require("../models/User");
 const router = express.Router();
 const upload = multer({ storage });
 
-// ✅ Update Profile
+/**
+ * ✅ Update Profile
+ * Allows name, country, and profilePic to be updated.
+ */
+// const { upload } = require("../config/cloudinary");
+
 router.post("/profile", upload.single("profilePic"), async (req, res) => {
   try {
     const { email, name, country } = req.body;
-    const profilePic = req.file?.path;
+    const profilePicUrl = req.file?.path;
 
-    const updated = {
-      ...(name && { name }),
-      ...(country && { country }),
-      ...(profilePic && { profilePic }),
-    };
+    const updatedUser = await User.findOneAndUpdate(
+      { email: email?.toLowerCase() }, // normalize
+      {
+        ...(name && { name }),
+        ...(country && { country }),
+        ...(profilePicUrl && { profilePic: profilePicUrl }),
+      },
+      { new: true }
+    );
 
-    const user = await User.findOneAndUpdate({ email }, updated, { new: true });
-    if (!user) return res.status(404).json({ error: "User not found" });
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
-    res.json({ message: "Profile updated", user });
+    res.status(200).json({
+      message: "Profile updated successfully",
+      user: {
+        name: updatedUser.name,
+        email: updatedUser.email,
+        country: updatedUser.country,
+        profilePic: updatedUser.profilePic,
+      },
+    });
+
+    console.log("Profile updated:", {
+      email,
+      name,
+      country,
+      profilePic: profilePicUrl,
+    });
   } catch (err) {
-    console.error("Profile update error:", err);
-    res.status(500).json({ error: "Internal error" });
+    console.error("Profile update error:", err.message);
+    res.status(500).json({ error: "Internal server error" });
   }
-  console.log('Received profile update:', {
-    email,
-    name,
-    country,
-    file: req.file,
-  }
-  );
 });
 
-// ✅ Delete Account
+
+// GET user profile by email
+router.post("/get-profile", async (req, res) => {
+  try {
+    const email = req.body.email?.toLowerCase();
+    const user = await User.findOne({ email });
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    res.json({
+      user: {
+        name: user.name,
+        email: user.email,
+        country: user.country,
+        profilePic: user.profilePic,
+      },
+    });
+  } catch (err) {
+    console.error("Get profile error:", err.message);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+
+
+/**
+ * ✅ Delete Account
+ * Deletes user by email.
+ */
 router.delete("/delete", async (req, res) => {
   const { email } = req.body;
 
@@ -45,9 +92,12 @@ router.delete("/delete", async (req, res) => {
 
   try {
     const user = await User.findOneAndDelete({ email });
-    if (!user) return res.status(404).json({ error: "User not found" });
 
-    res.json({ message: "Account deleted successfully" });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ message: "Account deleted successfully" });
   } catch (err) {
     console.error("Delete account error:", err);
     res.status(500).json({ error: "Failed to delete account" });

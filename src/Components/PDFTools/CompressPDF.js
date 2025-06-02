@@ -45,32 +45,23 @@ const CompressPDF = () => {
   };
 
   const handleUpload = async (filename, fileType, fileBlob) => {
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64 = reader.result.split(",")[1];
-      try {
-        const res = await fetch("http://localhost:5000/api/upload", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            filename,
-            fileType,
-            fileBase64: base64,
-          }),
-        });
-        const data = await res.json();
-        console.log("Upload response:", data);
-        alert("File uploaded successfully to MongoDB!");
-      } catch (err) {
-        console.error("Error uploading compressed file:", err);
-        alert("Upload failed. Check console for details.");
-      }
-    };
-    reader.readAsDataURL(fileBlob);
-  };
+  const formData = new FormData();
+  formData.append("file", fileBlob, filename);
+
+  try {
+    const res = await fetch("http://localhost:5000/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+    console.log("Upload response:", data);
+    alert("File uploaded successfully to Cloudinary!");
+  } catch (err) {
+    console.error("Error uploading compressed file:", err);
+    alert("Upload failed. Check console for details.");
+  }
+};
 
   const downloadCompressedFile = () => {
     if (compressedFile) {

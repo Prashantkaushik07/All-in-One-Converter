@@ -1,29 +1,21 @@
 const express = require("express");
-const Upload = require("../models/Upload");
-const auth = require("../middleware/auth");
+const multer = require("multer");
+const { storage } = require("../config/cloudinary");
+const upload = multer({ storage });
 const router = express.Router();
 
-router.post("/", auth, async (req, res) => {
-  console.log("✅ Upload route hit");
+router.post("/", upload.single("file"), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: "No file received" });
 
-  const { filename, fileType, fileBase64 } = req.body;
-
-  if (!filename || !fileType || !fileBase64) {
-    return res.status(400).json({ error: "Missing fields" });
+    res.status(200).json({
+      message: "Upload successful",
+      url: req.file.path, // Cloudinary URL
+    });
+  } catch (err) {
+    console.error("Upload error:", err);
+    res.status(500).json({ error: "Upload failed" });
   }
-
-  const buffer = Buffer.from(fileBase64, "base64");
-
-  const newFile = new Upload({
-    userId: req.user.userId,
-    filename,
-    fileType,
-    fileData: buffer
-  });
-
-  await newFile.save();
-
-  res.status(201).json({ message: "File uploaded", fileId: newFile._id });
 });
 
 module.exports = router;

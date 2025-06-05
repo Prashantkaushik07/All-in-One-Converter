@@ -28,7 +28,7 @@ const Dashboard = () => {
   const [processedFiles, setProcessedFiles] = useState([]);
   const { i18n, t } = useTranslation();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-console.log("User from context", user);
+// console.log("User from context", user);
   // eslint-disable-next-line
   
   const countryFlags = {

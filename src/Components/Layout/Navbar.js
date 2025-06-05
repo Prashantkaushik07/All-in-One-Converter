@@ -22,7 +22,6 @@ const ResponsiveNavbar = () => {
     logout();
     navigate("/");
   };
-  console.log("User from context", user);
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {

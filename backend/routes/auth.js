@@ -243,6 +243,44 @@ router.post("/verify-login-2fa", async (req, res) => {
     res.status(401).json({ error: "2FA verification failed" });
   }
 });
+// Resend OTP
+router.post("/resend-otp", async (req, res) => {
+  let { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  email = email.toLowerCase(); // ✅ Normalize email
+
+  try {
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Generate new OTP
+    const otp = generateOTP(); // Assumes this function exists
+    const expires = Date.now() + 5 * 60 * 1000; // 5 minutes expiry
+    otpStore[email] = { otp, expires };
+
+    // Send the email
+    const mailOptions = {
+      from: `"Your App" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Your New OTP Code",
+      html: `<p>Your new OTP is: <b>${otp}</b></p><p>It is valid for 5 minutes.</p>`,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`📧 Sent OTP to ${email}: ${otp}`);
+    res.status(200).json({ message: "OTP resent successfully" });
+  } catch (error) {
+    console.error("Error in /resend-otp:", error);
+    res.status(500).json({ error: "Failed to resend OTP" });
+  }
+});
 
 
 // Generate 2FA
@@ -355,17 +393,24 @@ email = email?.toLowerCase();
 
 // Reset Password
 router.post("/reset-password", async (req, res) => {
-  let { email, ...rest } = req.body;
-email = email?.toLowerCase();
+  let { email, newPassword } = req.body; // ✅ FIXED
+  email = email?.toLowerCase();
+
   try {
     const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" }); // better error
+    }
+
     user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
     res.json({ message: "Password reset successful" });
-  } catch {
+  } catch (err) {
+    console.error("Reset error:", err); // ✅ Debug log
     res.status(500).json({ error: "Reset failed" });
   }
 });
+
 
 // Verify Email
 router.post("/verify-email", async (req, res) => {

@@ -79,18 +79,30 @@ import React, { useState } from "react";
 import { PDFDocument } from "pdf-lib";
 import Dropzone from "react-dropzone";
 import "./SplitPDF.css";
+import { uploadApi } from "../../api/user_apiList";
 
 const SplitPDF = () => {
   const [file, setFile] = useState(null);
   const [pages, setPages] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleDrop = async (acceptedFiles) => {
     setFile(acceptedFiles[0]);
+    setStatusMessage("");
+    setErrorMessage("");
   };
 
   const splitPDF = async () => {
+    if (!file) {
+      alert("Please select a PDF first.");
+      return;
+    }
+
     setIsProcessing(true);
+    setStatusMessage("");
+    setErrorMessage("");
     try {
       const pdfBytes = await file.arrayBuffer();
       const pdfDoc = await PDFDocument.load(pdfBytes);
@@ -106,9 +118,18 @@ const SplitPDF = () => {
 
       const splitPages = await Promise.all(pagePromises);
       setPages(splitPages);
+
+      const outputFiles = splitPages.map(
+        (pageBlob, index) =>
+          new File([pageBlob], `split-page-${index + 1}-${Date.now()}.pdf`, {
+            type: "application/pdf",
+          })
+      );
+      await uploadApi.uploadFiles(outputFiles);
+      setStatusMessage("Split PDFs are ready and saved to Processed Files.");
     } catch (error) {
       console.error("Error splitting the PDF:", error);
-      alert("Failed to split the PDF. Please try again.");
+      setErrorMessage(error?.message || "Failed to split the PDF. Please try again.");
     } finally {
       setIsProcessing(false);
     }
@@ -127,6 +148,8 @@ const SplitPDF = () => {
         <h2 className="text-lg font-semibold text-gray-700 text-center mb-4">
           Split PDF
         </h2>
+        {errorMessage && <p className="text-sm text-red-600 text-center">{errorMessage}</p>}
+        {statusMessage && <p className="text-sm text-green-600 text-center">{statusMessage}</p>}
         <Dropzone onDrop={handleDrop} accept={{ "application/pdf": [".pdf"] }}>
           {({ getRootProps, getInputProps }) => (
             <div

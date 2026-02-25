@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import {jwtDecode} from "jwt-decode";
 import "./AccountPage.css";
+<<<<<<< Updated upstream
+=======
+import VerifyEmailModal from "../Auth/VerifyEmailModal";
+import { API } from "../../config/api.endpoints";
+import { api } from "../../lib/apiClient";
+>>>>>>> Stashed changes
 
 const AccountPage = () => {
   const [userEmail, setUserEmail] = useState("");
@@ -16,7 +22,34 @@ const AccountPage = () => {
         console.error("Invalid token:", err);
       }
     }
+<<<<<<< Updated upstream
   }, []); // ✅ no need to add 'token' as a dependency because it's from localStorage
+=======
+  }, []);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) setProfilePic(URL.createObjectURL(file));
+  };
+
+  const handleProfileUpdate = (e) => {
+    e.preventDefault();
+    console.log("Updated Name:", name);
+    console.log("Country:", country);
+    setShowEditor(false);
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!window.confirm("Are you sure you want to permanently delete your account?")) return;
+    try {
+      await api.delete(API.users.delete, { data: { email: userEmail } });
+      localStorage.clear();
+      window.location.href = "/signup";
+    } catch (err) {
+      console.error("Delete account failed:", err);
+    }
+  };
+>>>>>>> Stashed changes
 
   return (
     <div className="account-page">

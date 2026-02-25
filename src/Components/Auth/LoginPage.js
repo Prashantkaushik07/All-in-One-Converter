@@ -2,6 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import "./LoginPage.css";
+<<<<<<< Updated upstream
+=======
+import { useAuth } from "../../utils/AuthContext"; // ✅ import auth context
+import TwoFAModal from "./TwoFAModal"; // adjust relative path if needed
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
+import { API } from "../../config/api.endpoints";
+import { api } from "../../lib/apiClient";
+
+
+>>>>>>> Stashed changes
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -43,6 +54,25 @@ const LoginPage = () => {
     navigate("/login");
   };
 
+<<<<<<< Updated upstream
+=======
+  const handleGoogleSuccess = async (credentialResponse) => {
+  try {
+    const tokenId = credentialResponse.credential;
+    // eslint-disable-next-line
+    const decoded = jwtDecode(tokenId); // Optional: to read email/name
+
+    const data = await api.post(API.auth.googleLogin, { credential: tokenId });
+    login(data.token, data.name, data.email); // ✅ use your AuthContext login method
+    showPopup("Login successful via Google", "success");
+    navigate("/dashboard");
+  } catch (err) {
+    console.error("Google login error:", err);
+    showPopup(err.message || "Google login failed", "error");
+  }
+};
+
+>>>>>>> Stashed changes
   const showPopup = (message, type = "info") => {
     setPopup({ show: true, message, type });
     setTimeout(() => setPopup({ show: false, message: "", type: "" }), 3000);
@@ -73,6 +103,7 @@ const LoginPage = () => {
   }, [showVerifyOtp]);
 
   const handleLogin = async (e) => {
+<<<<<<< Updated upstream
     e.preventDefault();
     try {
       const res = await fetch("http://localhost:5000/api/auth/login", {
@@ -93,45 +124,93 @@ const LoginPage = () => {
       showPopup("An error occurred.", "error");
     }
   };
+=======
+  e.preventDefault();
+  try {
+    const data = await api.post(API.auth.login, { email, password });
+
+    if (data.message === "OTP sent") {
+      showPopup("2FA required. Enter your OTP.", "info");
+
+      // ✅ Save temporarily
+      localStorage.setItem("pendingToken", data.token);
+      localStorage.setItem("pendingUserEmail", email);
+      localStorage.setItem("pendingUserName", data.name || "");
+
+      setShow2FAModal(true); // Show modal
+    } else if (data.token) {
+      // ✅ Normal login without 2FA
+      login(data.token, data.name, data.email, data.profilePic || "");
+      showPopup("Login successful", "success");
+      navigate("/dashboard");
+    } else {
+      showPopup("Login failed", "error");
+    }
+  } catch (err) {
+    console.error("Login error:", err);
+    showPopup(err.message || "An error occurred.", "error");
+  }
+};
+
+  const handle2FAVerification = async ({ email, token: otpInput, rememberDevice }) => {
+  try {
+    const jwtToken = localStorage.getItem("pendingToken");
+
+    if (!jwtToken || jwtToken === "undefined") {
+      showPopup("Missing login token. Please log in again.", "error");
+      return;
+    }
+
+    const data = await api.post(API.auth.verifyLogin2FA, {
+      email,
+      otp: otpInput,        // ✅ OTP field
+      token: jwtToken,      // ✅ JWT from login phase
+      rememberDevice,
+    });
+
+    login(data.token, data.name, data.email, data.profilePic || "");
+    showPopup("2FA verification successful", "success");
+
+    // ✅ Cleanup temporary data
+    localStorage.removeItem("pendingToken");
+    localStorage.removeItem("pendingUserEmail");
+    localStorage.removeItem("pendingUserName");
+
+    if (rememberDevice) {
+      localStorage.setItem(`2fa_trusted_${email}`, "true");
+    }
+
+    setShow2FAModal(false);
+    navigate("/dashboard");
+  } catch (err) {
+    console.error("2FA verification failed:", err);
+    showPopup(err.message || "Something went wrong during verification", "error");
+  }
+};
+
+
+>>>>>>> Stashed changes
 
   const handleResetSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:5000/api/auth/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: resetEmail }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        showPopup("Verification email sent. Please check your inbox.", "success");
-        setShowVerifyOtp(true);
-      } else {
-        showPopup(data.error || "Reset request failed.", "error");
-      }
+      await api.post(API.auth.forgotPassword, { email: resetEmail });
+      showPopup("Verification email sent. Please check your inbox.", "success");
+      setShowVerifyOtp(true);
     } catch (err) {
       console.error("Reset password error:", err);
-      showPopup("Something went wrong.", "error");
+      showPopup(err.message || "Something went wrong.", "error");
     }
   };
 
   const handleOtpVerify = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/auth/verify-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: resetEmail, otp }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        showPopup("OTP verified. You can now reset your password.", "success");
-        setShowNewPassword(true);
-      } else {
-        showPopup(data.error || "Invalid OTP", "error");
-      }
+      await api.post(API.auth.verifyEmail, { email: resetEmail, otp });
+      showPopup("OTP verified. You can now reset your password.", "success");
+      setShowNewPassword(true);
     } catch (err) {
       console.error("OTP verification failed", err);
-      showPopup("Something went wrong.", "error");
+      showPopup(err.message || "Something went wrong.", "error");
     }
   };
 
@@ -139,38 +218,25 @@ const LoginPage = () => {
     try {
       setResendDisabled(true);
       setTimer(30);
-      await fetch("http://localhost:5000/api/auth/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: resetEmail }),
-      });
+      await api.post(API.auth.forgotPassword, { email: resetEmail });
       showPopup("OTP resent to your email.", "success");
     } catch (err) {
-      showPopup("Failed to resend OTP.", "error");
+      showPopup(err.message || "Failed to resend OTP.", "error");
     }
   };
 
   const handleNewPasswordSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:5000/api/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: resetEmail, newPassword }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        showPopup("Password reset successful. Please log in.", "success");
-        setShowReset(false);
-        setShowVerifyOtp(false);
-        setShowNewPassword(false);
-        navigate("/login");
-      } else {
-        showPopup(data.error || "Reset failed.", "error");
-      }
+      await api.post(API.auth.resetPassword, { email: resetEmail, newPassword });
+      showPopup("Password reset successful. Please log in.", "success");
+      setShowReset(false);
+      setShowVerifyOtp(false);
+      setShowNewPassword(false);
+      navigate("/login");
     } catch (err) {
       console.error("Reset error:", err);
-      showPopup("Something went wrong.", "error");
+      showPopup(err.message || "Something went wrong.", "error");
     }
   };
 

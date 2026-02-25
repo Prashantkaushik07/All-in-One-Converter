@@ -1,8 +1,10 @@
 import React, { useState, useRef } from "react";
 import { jsPDF } from "jspdf";
+import { uploadApi } from "../../api/user_apiList";
 
 function InlineImageToPDF() {
   const [images, setImages] = useState([]);
+  const [isConverting, setIsConverting] = useState(false);
   const dropZoneRef = useRef(null);
 
   const handleFiles = (files) => {
@@ -43,38 +45,55 @@ function InlineImageToPDF() {
       return;
     }
 
-    const pdf = new jsPDF("p", "pt", "a4");
-    for (let i = 0; i < images.length; i++) {
-      const imgData = await readFileAsDataURL(images[i]);
-      const img = new Image();
-      img.src = imgData;
-      await new Promise((resolve) => {
-        img.onload = resolve;
-      });
+    setIsConverting(true);
+    try {
+      const pdf = new jsPDF("p", "pt", "a4");
+      for (let i = 0; i < images.length; i++) {
+        const imgData = await readFileAsDataURL(images[i]);
+        const img = new Image();
+        img.src = imgData;
+        await new Promise((resolve) => {
+          img.onload = resolve;
+        });
 
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
 
-      let imgWidth = img.width;
-      let imgHeight = img.height;
-      const ratio = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
-      imgWidth *= ratio;
-      imgHeight *= ratio;
+        let imgWidth = img.width;
+        let imgHeight = img.height;
+        const ratio = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
+        imgWidth *= ratio;
+        imgHeight *= ratio;
 
-      if (i > 0) {
-        pdf.addPage();
+        if (i > 0) {
+          pdf.addPage();
+        }
+        pdf.addImage(
+          imgData,
+          "JPEG",
+          (pageWidth - imgWidth) / 2,
+          (pageHeight - imgHeight) / 2,
+          imgWidth,
+          imgHeight
+        );
       }
-      pdf.addImage(
-        imgData,
-        "JPEG",
-        (pageWidth - imgWidth) / 2,
-        (pageHeight - imgHeight) / 2,
-        imgWidth,
-        imgHeight
-      );
-    }
 
-    pdf.save("converted.pdf");
+      const fileName = `converted-${Date.now()}.pdf`;
+      const blob = pdf.output("blob");
+      const file = new File([blob], fileName, { type: "application/pdf" });
+      await uploadApi.uploadFiles([file]);
+
+      const fileUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = fileUrl;
+      link.download = fileName;
+      link.click();
+      URL.revokeObjectURL(fileUrl);
+    } catch (error) {
+      alert(error?.message || "Failed to process file.");
+    } finally {
+      setIsConverting(false);
+    }
   };
 
   const readFileAsDataURL = (file) => {
@@ -134,8 +153,8 @@ function InlineImageToPDF() {
       )}
 
       {images.length > 0 && (
-        <button className="convert-button" onClick={convertToPDF}>
-          Convert to PDF
+        <button className="convert-button" onClick={convertToPDF} disabled={isConverting}>
+          {isConverting ? "Processing..." : "Convert to PDF"}
         </button>
       )}
     </div>

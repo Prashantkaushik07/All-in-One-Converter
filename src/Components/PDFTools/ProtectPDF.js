@@ -1214,15 +1214,20 @@ import React, { useState } from "react";
 import { jsPDF } from "jspdf";
 import Dropzone from "react-dropzone";
 import "./ProtectPDF.css";
+import { uploadApi } from "../../api/user_apiList";
 
 const ProtectPDF = () => {
   const [file, setFile] = useState(null);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleDrop = (acceptedFiles) => {
     setFile(acceptedFiles[0]);
+    setStatusMessage("");
+    setErrorMessage("");
   };
 
   const protectPDF = async () => {
@@ -1236,6 +1241,8 @@ const ProtectPDF = () => {
     }
 
     setIsProcessing(true);
+    setStatusMessage("");
+    setErrorMessage("");
     try {
       // Check if file is correctly uploaded
       if (!file) {
@@ -1243,44 +1250,60 @@ const ProtectPDF = () => {
       }
 
       console.log("File selected:", file);
+      const protectedPDF = await new Promise((resolve, reject) => {
+        const pdfDoc = new jsPDF();
+        const reader = new FileReader();
 
-      // Create an instance of jsPDF
-      const pdfDoc = new jsPDF();
-      const fileBytes = await file.arrayBuffer();
+        reader.onload = async (e) => {
+          try {
+            const data = e.target.result;
+            const img = new Image();
+            img.src = data;
+            img.onload = async () => {
+              try {
+                pdfDoc.addImage(img, "JPEG", 0, 0);
+                pdfDoc.setPassword(password);
+                pdfDoc.setEncryption(password);
+                resolve(pdfDoc.output("blob"));
+              } catch (err) {
+                reject(err);
+              }
+            };
+            img.onerror = () => reject(new Error("Unable to read uploaded PDF content."));
+          } catch (err) {
+            reject(err);
+          }
+        };
 
-      // Add the content from the uploaded PDF to the new jsPDF document
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const data = e.target.result;
-        const img = new Image();
-        img.src = data;
-        pdfDoc.addImage(img, "JPEG", 0, 0);
-        pdfDoc.setPassword(password);
+        reader.onerror = () => reject(new Error("Failed to read input file."));
+        reader.readAsDataURL(file);
+      });
 
-        // Protect the PDF by setting the password
-        pdfDoc.setEncryption(password);
-        const protectedPDF = pdfDoc.output("blob");
+      const outputName = `protected-${Date.now()}.pdf`;
+      const outputFile = new File([protectedPDF], outputName, { type: "application/pdf" });
+      await uploadApi.uploadFiles([outputFile]);
 
-        // Download the protected PDF
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(protectedPDF);
-        link.download = "protected.pdf";
-        link.click();
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(protectedPDF);
+      link.download = outputName;
+      link.click();
 
-        console.log("Download triggered for protected PDF");
-      };
-      reader.readAsDataURL(file);
+      setStatusMessage("Protected PDF is ready and saved to Processed Files.");
+      console.log("Download triggered for protected PDF");
     } catch (error) {
       console.error("Error protecting the PDF:", error);
-      alert(`Failed to protect the PDF: ${error.message || error}`);
-    } finally {
-      setIsProcessing(false);
+      const message = error?.message || "Failed to protect the PDF.";
+      setErrorMessage(message);
+      alert(`Failed to protect the PDF: ${message}`);
     }
+    setIsProcessing(false);
   };
 
   return (
     <div className="protect-pdf-container">
       <h2 className="title">Password Protect PDF</h2>
+      {errorMessage && <p className="text-sm text-red-600">{errorMessage}</p>}
+      {statusMessage && <p className="text-sm text-green-600">{statusMessage}</p>}
       <div className="password-inputs">
         <input
           type="password"

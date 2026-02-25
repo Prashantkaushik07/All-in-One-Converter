@@ -41,6 +41,20 @@ const Navbar = () => {
     setIsLoggedIn(false);
     navigate("/");
   };
+<<<<<<< Updated upstream
+=======
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+// eslint-disable-next-line
+  const userImage = user.profilePic?.startsWith("http") ? user.profilePic : "/user-icon.svg";
+>>>>>>> Stashed changes
 
   return (
     <div className="navbar">

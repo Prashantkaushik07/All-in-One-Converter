@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoginPage.css";
+import { API } from "../../config/api.endpoints";
+import { api } from "../../lib/apiClient";
 
 const SignupPage = () => {
   const [email, setEmail] = useState("");
@@ -11,6 +13,7 @@ const SignupPage = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
+<<<<<<< Updated upstream
       const res = await fetch("http://localhost:5000/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -27,6 +30,15 @@ const SignupPage = () => {
     } catch (err) {
       console.error("Signup error:", err);
       alert("An error occurred.");
+=======
+      const data = await api.post(API.auth.signup, { email, password });
+      if (data?.token) localStorage.setItem("token", data.token);
+      showPopup("Account created successfully");
+      navigate("/");
+    } catch (err) {
+      console.error("Signup error:", err);
+      showPopup(err.message || "An error occurred.");
+>>>>>>> Stashed changes
     }
   };
 

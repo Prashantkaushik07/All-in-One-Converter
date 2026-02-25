@@ -71,18 +71,30 @@ import React, { useState } from "react";
 import { PDFDocument } from "pdf-lib";
 import Dropzone from "react-dropzone";
 import "./MergePDF.css"; // Import your CSS file here
+import { uploadApi } from "../../api/user_apiList";
 
 const MergePDF = () => {
   const [files, setFiles] = useState([]);
   const [mergedFile, setMergedFile] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleDrop = async (acceptedFiles) => {
     setFiles(acceptedFiles);
+    setStatusMessage("");
+    setErrorMessage("");
   };
 
   const mergePDFs = async () => {
+    if (files.length < 2) {
+      alert("Please select at least 2 PDF files.");
+      return;
+    }
+
     setIsProcessing(true);
+    setStatusMessage("");
+    setErrorMessage("");
 
     try {
       const mergedPdf = await PDFDocument.create();
@@ -97,10 +109,16 @@ const MergePDF = () => {
       }
 
       const mergedBytes = await mergedPdf.save();
-      setMergedFile(new Blob([mergedBytes], { type: "application/pdf" }));
+      const blob = new Blob([mergedBytes], { type: "application/pdf" });
+      const outputName = `merged-${Date.now()}.pdf`;
+      const outputFile = new File([blob], outputName, { type: "application/pdf" });
+
+      await uploadApi.uploadFiles([outputFile]);
+      setMergedFile(blob);
+      setStatusMessage("Merged PDF is ready and saved to Processed Files.");
     } catch (error) {
       console.error("Error merging PDFs:", error);
-      alert("Failed to merge PDFs. Please try again.");
+      setErrorMessage(error?.message || "Failed to merge PDFs. Please try again.");
     } finally {
       setIsProcessing(false);
     }
@@ -121,6 +139,8 @@ const MergePDF = () => {
         <h2 className="text-lg font-semibold text-gray-700 text-center mb-4">
           Merge PDF
         </h2>
+        {errorMessage && <p className="text-sm text-red-600 text-center">{errorMessage}</p>}
+        {statusMessage && <p className="text-sm text-green-600 text-center">{statusMessage}</p>}
         <Dropzone onDrop={handleDrop} accept={{ "application/pdf": [".pdf"] }}>
           {({ getRootProps, getInputProps }) => (
             <div

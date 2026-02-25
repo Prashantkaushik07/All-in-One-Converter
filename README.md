@@ -43,3 +43,35 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/de
 npm run build fails to minify
 This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
 
+API Centralization
+
+This project centralizes API settings so endpoint or host changes happen in one place.
+
+Where to change API endpoint paths
+- Frontend source of truth: `src/config/api.endpoints.js`
+- Backend route constants: `backend/config/routes.js`
+
+Where to change API base URL
+- Frontend base URL: `REACT_APP_API_BASE_URL` in `.env`
+- Fallback in code: `src/config/api.config.js`
+
+How to add a new endpoint
+1. Add the new endpoint path in `src/config/api.endpoints.js`
+2. Add the backend constant in `backend/config/routes.js`
+3. Wire the backend route to the constant in the relevant route file
+4. Call it from frontend via `src/lib/apiClient.js`
+
+React usage example
+```js
+import { API } from "../config/api.endpoints";
+import { api } from "../lib/apiClient";
+
+const loadProfile = async () => {
+  try {
+    const data = await api.post(API.users.getProfile, { email: "user@example.com" });
+    console.log(data);
+  } catch (error) {
+    console.error(error.message);
+  }
+};
+```

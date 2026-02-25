@@ -10,6 +10,9 @@ const router = express.Router();
 const upload = multer({ storage });
 const userPath = (fullPath) => fullPath.replace(ROUTES.USERS_BASE, "");
 
+const router = express.Router();
+const upload = multer({ storage });
+
 /**
  * ✅ Update Profile
  * Allows name, country, and profilePic to be updated.
@@ -17,6 +20,7 @@ const userPath = (fullPath) => fullPath.replace(ROUTES.USERS_BASE, "");
 // const { upload } = require("../config/cloudinary");
 
 router.post(userPath(ROUTES.USERS.PROFILE), upload.single("profilePic"), async (req, res) => {
+router.post("/profile", upload.single("profilePic"), async (req, res) => {
   try {
     const { email, name, country } = req.body;
     const profilePicUrl = req.file?.path;
@@ -73,6 +77,7 @@ router.post(userPath(ROUTES.USERS.PROFILE), upload.single("profilePic"), async (
 
 // GET user profile by email
 router.post(userPath(ROUTES.USERS.GET_PROFILE), async (req, res) => {
+router.post("/get-profile", async (req, res) => {
   try {
     const email = req.body.email?.toLowerCase();
     const user = await User.findOne({ email });
@@ -115,6 +120,7 @@ router.get(userPath(ROUTES.USERS.ME), requireAuth, async (req, res) => {
  * Deletes user by email.
  */
 router.delete(userPath(ROUTES.USERS.DELETE), async (req, res) => {
+router.delete("/delete", async (req, res) => {
   const { email } = req.body;
 
   if (!email) {

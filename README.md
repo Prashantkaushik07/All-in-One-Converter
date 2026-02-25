@@ -1,45 +1,172 @@
-All-in-One Converter
+# All-in-One Converter
 
-Project Description
-All-in-One Converter is a React application that allows users to seamlessly manipulate files. The application offers a wide range of features including file conversion, compression, editing, and batch processing. It is designed to provide a user-friendly and secure experience for managing your files.
-Live View
-You can view the live version of this project at the following URL: Live Project
-Getting Started with Create React App
-This project was bootstrapped with Create React App.
-Available Scripts
+All-in-One Converter is a versatile full-stack application built with React and Node.js, designed to help you seamlessly manipulate and manage your files. Whether you need to convert, compress, edit, or batch-process files, this tool provides an intuitive, secure, and efficient interface to get the job done.
+
+## Table of Contents
+
+* [Features](#features)
+* [Demo](#demo)
+* [Tech Stack](#tech-stack)
+* [Getting Started](#getting-started)
+
+  * [Prerequisites](#prerequisites)
+  * [Installation](#installation)
+* [Usage](#usage)
+* [API](#api)
+* [Available Scripts](#available-scripts)
+* [Folder Structure](#folder-structure)
+* [Contributing](#contributing)
+* [License](#license)
+* [Contact](#contact)
+
+## Features
+
+* **File Conversion:** Convert between common formats (PDF, DOCX, JPG, PNG, etc.)
+* **Compression & Decompression:** Zip and unzip files with ease.
+* **File Editing:** Crop, resize, or rotate images; remove metadata.
+* **Batch Processing:** Perform operations on multiple files in a single action.
+* **Secure Handling:** Files are processed server-side and cleaned up automatically.
+* **Responsive UI:** Built with React for a smooth, responsive experience.
+
+## Demo
+
+Check out the live demo here:
+
+[Live Project](https://your-live-url.com)
+
+> *Replace the above URL with your deployed application URL.*
+
+## Tech Stack
+
+* **Frontend:** React, React Router, Axios
+* **Backend:** Node.js, Express, Multer (for file uploads)
+* **Styling:** CSS Modules / SCSS
+* **Bundler:** Create React App (Webpack, Babel)
+
+## Getting Started
+
+### Prerequisites
+
+* Node.js v14 or higher
+* npm (or Yarn)
+
+### Installation
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/Prashantkaushik07/All-in-One-Converter.git
+   cd All-in-One-Converter
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   # In the root directory
+   npm install
+
+   # If there is a backend service:
+   cd backend
+   npm install
+   cd ..
+   ```
+
+3. **Environment Variables**
+
+   Create a `.env` file in the `backend/` folder and add:
+
+   ```env
+   PORT=5000
+   UPLOAD_DIR=uploads/
+   ```
+
+4. **Run the application**
+
+   ```bash
+   # Start backend server
+   cd backend && npm start
+
+   # In a separate terminal, start frontend
+   npm start
+   ```
+
+   The frontend will be available at `http://localhost:3000` and the backend at `http://localhost:5000`.
+
+## Usage
+
+* Navigate to the web interface.
+* Upload one or multiple files.
+* Select desired operation (convert, compress, edit).
+* Configure options (format, quality, dimensions).
+* Click **Start** and download your processed files.
+
+## API
+
+The backend exposes the following endpoints:
+
+| Method | Endpoint          | Description                       |
+| ------ | ----------------- | --------------------------------- |
+| POST   | `/api/upload`     | Upload files for processing       |
+| POST   | `/api/convert`    | Convert uploaded files            |
+| POST   | `/api/compress`   | Compress or decompress files      |
+| POST   | `/api/edit`       | Perform edits (crop, resize)      |
+| GET    | `/api/status/:id` | Check processing status by job ID |
+
+> *Refer to the JSDoc comments in `backend/` for detailed request/response schemas.*
+
+## Available Scripts
+
 In the project directory, you can run:
-npm start
-Runs the app in the development mode.
-Open http://localhost:3000 to view it in your browser.
-The page will reload when you make changes.
-You may also see any lint errors in the console.
-npm test
-Launches the test runner in the interactive watch mode.
-See the section about running tests for more information.
-npm run build
-Builds the app for production to the build folder.
-It correctly bundles React in production mode and optimizes the build for the best performance.
-The build is minified, and the filenames include the hashes.
-Your app is ready to be deployed!
-See the section about deployment for more information.
-npm run eject
-Note: this is a one-way operation. Once you eject, you can't go back!
-If you aren't satisfied with the build tool and configuration choices, you can eject at any time. This command will remove the single build dependency from your project.
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc.) right into your project so you have full control over them. All of the commands except eject will still work, but they will point to the copied scripts so you can tweak them. At this point, you're on your own.
-You don't have to ever use eject. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However, we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-Learn More
-You can learn more in the Create React App documentation.
-To learn React, check out the React documentation.
-Code Splitting
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-Analyzing the Bundle Size
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-Making a Progressive Web App
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-Advanced Configuration
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-Deployment
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-npm run build fails to minify
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
 
+```bash
+npm start       # Starts the React development server
+npm test        # Runs frontend tests in watch mode
+npm run build   # Bundles the app for production
+npm run eject   # Ejects CRA configuration (one-way)
+```
+
+And for the backend:
+
+```bash
+cd backend
+npm start       # Starts the Express server
+npm test        # Runs backend tests (if any)
+```
+
+## Folder Structure
+
+```
+All-in-One-Converter/
+├── backend/            # Express server, file-processing logic
+├── public/             # Static assets (favicon, index.html)
+├── src/                # React source code
+│   ├── components/     # Reusable React components
+│   ├── pages/          # Page-level components
+│   ├── services/       # API service calls (Axios wrappers)
+│   └── styles/         # CSS / SCSS modules
+├── .gitignore          # Excluded files
+├── package.json        # Frontend dependencies & scripts
+├── backend/package.json# Backend dependencies & scripts
+└── README.md           # This file
+```
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request with your improvements.
+
+1. Fork the repo
+2. Create your feature branch (`git checkout -b feature/YourFeature`)
+3. Commit your changes (`git commit -m 'Add YourFeature'`)
+4. Push to the branch (`git push origin feature/YourFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+Maintainer: Prashant Kaushik
+
+* GitHub: [@Prashantkaushik07](https://github.com/Prashantkaushik07)
+* Email: [prashantkaushik700@gmail.com](mailto:prashantkaushik700@gmail.com)

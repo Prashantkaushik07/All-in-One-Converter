@@ -1,0 +1,249 @@
+/* Page & Containers */
+.account-page,
+.dashboard-container {
+  font-family: "Segoe UI", sans-serif;
+  color: #fff;
+  background-color: #1e1e1e;
+}
+
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  background-color: #121212;
+  padding: 20px;
+  border-right: 1px solid #2e2e2e;
+}
+
+.sidebar-section {
+  margin-bottom: 30px;
+}
+
+.sidebar-section h4 {
+  font-size: 0.9rem;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+.sidebar-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar-section ul li {
+  padding: 10px;
+  cursor: pointer;
+  color: #ccc;
+}
+
+.sidebar-section ul li.active {
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  color: #fff;
+}
+
+/* Main Content */
+.main-content {
+  flex-grow: 1;
+  padding: 30px;
+  background-color: #1e1e1e;
+}
+
+/* Cards */
+.card {
+  background-color: #121212;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  border: 1px solid #2e2e2e;
+  color: #ccc;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  color: #ccc;
+}
+
+.card-header h3 {
+  margin: 0;
+}
+
+.card-header button {
+  background: none;
+  border: none;
+  color: #3399ff;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+/* Profile Content */
+.profile-content {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  margin-top: 16px;
+}
+
+.avatar-circle {
+  background-color: #2a2a2a;
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 40px;
+}
+
+.profile-info p {
+  margin: 5px 0;
+}
+
+/* Avatar upload in edit mode */
+.form-avatar-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.profile-avatar-large {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #444;
+}
+
+.camera-icon {
+  position: absolute;
+  bottom: 10px;
+  right: 44%;
+  background-color: #333;
+  padding: 6px;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  color: white;
+  cursor: pointer;
+}
+
+/* Profile Edit Form */
+.updated-form {
+  background: #1e1e1e;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 450px;
+  margin: 0 auto;
+  border: 1px solid #333;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.form-close {
+  background: none;
+  color: #339cff;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* Inputs */
+.input-field {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  background-color: #2c2c2c;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 6px;
+}
+
+.input-field:focus {
+  border-color: #339cff;
+  outline: none;
+}
+
+/* Buttons */
+.update-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #007bff;
+  border: none;
+  color: white;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.update-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Verify & Delete Links */
+.verify-link,
+.delete-link {
+  display: inline-block;
+  margin-top: 10px;
+  color: #59aaff;
+  text-decoration: underline;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/* Verify Banner */
+.verify-banner {
+  background-color: #2a2a2a;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.verify-banner a {
+  color: #59aaff;
+  text-decoration: underline;
+}
+
+/* Table styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #121212;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+thead {
+  background-color: #2a2a2a;
+}
+
+th,
+td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #333;
+}
+
+th {
+  color: #bbb;
+  font-weight: 600;
+}
+
+.no-files {
+  text-align: center;
+  color: #777;
+  padding: 20px;
+}

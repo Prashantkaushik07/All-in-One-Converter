@@ -12,11 +12,13 @@ const geoip = require("geoip-lite");
 const useragent = require("express-useragent");
 const User = require("../models/User");
 const { OAuth2Client } = require("google-auth-library");
+const ROUTES = require("../config/routes");
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:3000";
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const otpStore = {};
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const authPath = (fullPath) => fullPath.replace(ROUTES.AUTH_BASE, "");
 
 
 
@@ -66,6 +68,7 @@ async function sendLoginVerificationEmail(email, details = {}) {
   });
 }
 
+router.post(authPath(ROUTES.AUTH.GOOGLE_LOGIN), async (req, res) => {
 router.post("/google-login", async (req, res) => {
   const { credential } = req.body;
 
@@ -78,6 +81,12 @@ router.post("/google-login", async (req, res) => {
       idToken: credential,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
+
+    const payload = ticket.getPayload();
+    const email = payload.email;
+    const name = payload.name || "Google User";
+    const picture = payload.picture;
+
 
     const payload = ticket.getPayload();
     const email = payload.email;
@@ -107,6 +116,9 @@ router.post("/google-login", async (req, res) => {
 });
 
 // Signup
+router.post(authPath(ROUTES.AUTH.SIGNUP), async (req, res) => {
+  let { email, password } = req.body;
+  email = email?.toLowerCase();
 router.post("/signup", async (req, res) => {
   let { email, password } = req.body;
 email = email?.toLowerCase();
@@ -118,6 +130,10 @@ email = email?.toLowerCase();
     const hashed = await bcrypt.hash(password, 10);
     const user = await User.create({ email, password: hashed });
 
+
+    const hashed = await bcrypt.hash(password, 10);
+    const user = await User.create({ email, password: hashed });
+
     const otp = generateOTP();
     otpStore[email] = { otp, expires: Date.now() + 5 * 60 * 1000 };
 
@@ -125,6 +141,136 @@ email = email?.toLowerCase();
       to: email,
       subject: "Email Verification",
       html: `<p>Your OTP is <b>${otp}</b>. Valid for 5 minutes.</p>`,
+    });
+
+    res.status(201).json({ message: "Signup complete. Verify your email." });
+  } catch (err) {
+    res.status(500).json({ error: "Signup failed" });
+  }
+});
+
+// Login
+router.post(authPath(ROUTES.AUTH.LOGIN), async (req, res) => {
+  let { email, password } = req.body;
+  email = email?.toLowerCase();
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) return res.status(401).json({ error: "Invalid credentials" });
+
+    const otp = generateOTP();
+    otpStore[email] = { otp, expires: Date.now() + 5 * 60 * 1000 };
+
+    const token = create2FAToken({ email });
+    await transporter.sendMail({
+      to: email,
+      subject: "2FA Login OTP",
+      html: `<p>Your OTP is <b>${otp}</b>. Valid for 5 minutes.</p>`,
+    });
+
+    res.json({ message: "OTP sent", token });
+  } catch {
+    res.status(500).json({ error: "Login failed" });
+  }
+});
+
+
+// Google Login
+router.post(authPath(ROUTES.AUTH.GOOGLE_LOGIN), async (req, res) => {
+  const { email, name } = req.body;
+
+  try {
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await User.create({ email, name, verified: true });
+    }
+    const token = createToken({ id: user._id });
+    res.json({ message: "Login successful", token });
+  } catch {
+    res.status(500).json({ error: "Google login failed" });
+  }
+});
+
+// Verify Login 2FA
+// Fix this route to return full user data
+
+// Utility: Verify token
+// const verify2FAToken = (token) => {
+//   const secret = process.env.JWT_SECRET;
+//   if (!secret) throw new Error("JWT_SECRET not set");
+//   return jwt.verify(token, secret);
+// };
+
+// Utility: Create new token
+// const createToken = (payload) => {
+//   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
+// };
+
+// ✅ VERIFY LOGIN 2FA ROUTE
+router.post(authPath(ROUTES.AUTH.VERIFY_LOGIN_2FA), async (req, res) => {
+  const { token, otp } = req.body;
+  const email = req.body.email?.toLowerCase();
+
+  try {
+    console.log("🔐 Incoming token:", token);
+    const payload = verify2FAToken(token);
+    console.log("✅ Decoded JWT payload:", payload);
+
+    const record = otpStore[payload.email];
+    console.log("🕵️ OTP Record:", record);
+
+    if (!record || record.otp !== otp || Date.now() > record.expires) {
+      return res.status(400).json({ error: "Invalid or expired OTP" });
+    }
+
+    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+    const geo = geoip.lookup(ip) || {};
+    const browser = req.useragent.browser + " on " + req.useragent.os;
+
+    const user = await User.findOne({ email: payload.email });
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const authToken = createToken({ id: user._id });
+
+    await sendLoginVerificationEmail(payload.email, {
+      username: user.name || "User",
+      loginTime: new Date().toLocaleString(),
+      location: geo.city ? `${geo.city}, ${geo.country}` : "Unknown",
+      browser,
+      ip,
+      disable2FAURL: `${CLIENT_URL}/account/security`,
+    });
+
+    delete otpStore[payload.email]; // Invalidate used OTP
+
+    // ✅ Send full user info
+    res.status(200).json({
+      message: "Login successful",
+      token: authToken,
+      name: user.name,
+      email: user.email,
+      profilePic: user.profilePic || "",
+    });
+  } catch (err) {
+    console.error("❌ 2FA verification failed:", err.message || err);
+    res.status(401).json({ error: "2FA verification failed" });
+  }
+});
+// Resend OTP
+router.post(authPath(ROUTES.AUTH.RESEND_OTP), async (req, res) => {
+  let { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  email = email.toLowerCase(); // ✅ Normalize email
+
+  try {
+    // Check if user exists
     });
 
     res.status(201).json({ message: "Signup complete. Verify your email." });
@@ -169,6 +315,7 @@ router.post("/google-login", async (req, res) => {
   try {
     let user = await User.findOne({ email });
     if (!user) {
+      return res.status(404).json({ error: "User not found" });
       user = await User.create({ email, name, verified: true });
     }
     const token = createToken({ id: user._id });
@@ -247,6 +394,11 @@ router.post("/verify-login-2fa", async (req, res) => {
 router.post("/resend-otp", async (req, res) => {
   let { email } = req.body;
 
+    // Generate new OTP
+    const otp = generateOTP(); // Assumes this function exists
+    const expires = Date.now() + 5 * 60 * 1000; // 5 minutes expiry
+    otpStore[email] = { otp, expires };
+
   if (!email) {
     return res.status(400).json({ error: "Email is required" });
   }
@@ -284,6 +436,9 @@ router.post("/resend-otp", async (req, res) => {
 
 
 // Generate 2FA
+router.post(authPath(ROUTES.AUTH.GENERATE_2FA), async (req, res) => {
+  let { email, ...rest } = req.body;
+  email = email?.toLowerCase();
 router.post("/generate-2fa", async (req, res) => {
   let { email, ...rest } = req.body;
 email = email?.toLowerCase();
@@ -301,6 +456,7 @@ email = email?.toLowerCase();
 });
 
 // Verify 2FA
+router.post(authPath(ROUTES.AUTH.VERIFY_2FA), async (req, res) => {
 router.post("/verify-2fa", async (req, res) => {
   const { email, otp } = req.body;
 
@@ -335,6 +491,9 @@ router.post("/verify-2fa", async (req, res) => {
 
 
 // Update Password
+router.post(authPath(ROUTES.AUTH.UPDATE_PASSWORD), async (req, res) => {
+  let { email, ...rest } = req.body;
+  email = email?.toLowerCase();
 router.post("/update-password", async (req, res) => {
   let { email, ...rest } = req.body;
 email = email?.toLowerCase();
@@ -353,6 +512,9 @@ email = email?.toLowerCase();
 });
 
 // Forget Password
+router.post(authPath(ROUTES.AUTH.FORGOT_PASSWORD), async (req, res) => {
+  let { email, ...rest } = req.body;
+  email = email?.toLowerCase();
 router.post("/forgot-password", async (req, res) => {
   let { email, ...rest } = req.body;
 email = email?.toLowerCase();
@@ -392,6 +554,7 @@ email = email?.toLowerCase();
 });
 
 // Reset Password
+router.post(authPath(ROUTES.AUTH.RESET_PASSWORD), async (req, res) => {
 router.post("/reset-password", async (req, res) => {
   let { email, newPassword } = req.body; // ✅ FIXED
   email = email?.toLowerCase();
@@ -413,6 +576,7 @@ router.post("/reset-password", async (req, res) => {
 
 
 // Verify Email
+router.post(authPath(ROUTES.AUTH.VERIFY_EMAIL), async (req, res) => {
 router.post("/verify-email", async (req, res) => {
   const { email, otp } = req.body;
   const record = otpStore[email];
@@ -427,6 +591,9 @@ router.post("/verify-email", async (req, res) => {
 });
 
 // Verify Generic OTP
+router.post(authPath(ROUTES.AUTH.VERIFY_OTP), (req, res) => {
+  let { email, ...rest } = req.body;
+  email = email?.toLowerCase();
 router.post("/verify-otp", (req, res) => {
   let { email, ...rest } = req.body;
 email = email?.toLowerCase();
@@ -441,6 +608,9 @@ email = email?.toLowerCase();
 
 
 // Delete Account
+router.post(authPath(ROUTES.AUTH.DELETE), async (req, res) => {
+  let { email, ...rest } = req.body;
+  email = email?.toLowerCase();
 router.post("/delete", async (req, res) => {
   let { email, ...rest } = req.body;
 email = email?.toLowerCase();
